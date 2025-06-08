@@ -1,9 +1,8 @@
-import { Router } from "express"
-import { MongoAuthRepository } from "../../infrastructure/repositories/MongoAuthRepository" 
-// import { InMemoryUserRepository } from "../../infrastructure/repositories/InMemoryUserRepository" 
-import { LoginUser } from "../../use-cases/auth/signIn"
-import { SignUpUser } from "../../use-cases/auth/signUp"
-import { AuthController } from "../controllers/AuthController"
+import { Router } from "express";
+import { MongoAuthRepository } from "../../infrastructure/repositories/MongoAuthRepository";
+import { LoginUser } from "../../use-cases/auth/signIn";
+import { SignUpUser } from "../../use-cases/auth/signUp";
+import { AuthController } from "../controllers/AuthController";
 
 const router = Router();
 
@@ -13,7 +12,77 @@ const loginUser = new LoginUser(authRepository);
 
 const authController = new AuthController(loginUser, registerUser);
 
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login a user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "user@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "yourpassword"
+ *     responses:
+ *       200:
+ *         description: Successful login
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *       401:
+ *         description: Invalid credentials
+ */
 router.post("/login", (req, res, next) => authController.login(req, res, next));
+
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - email
+ *               - password
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 example: "John Doe"
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "john@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "securePassword123"
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *       400:
+ *         description: Invalid input or user already exists
+ */
 router.post("/register", (req, res, next) => authController.signUp(req, res, next));
 
 export { router as authRoutes };
