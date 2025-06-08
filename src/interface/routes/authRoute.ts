@@ -72,16 +72,16 @@ router.post("/login", (req, res, next) => authController.login(req, res, next));
  *               fullName:
  *                 type: string
  *                 example: "John Doe"
- *              username:
- *                  type: string
- *                  example: "johndoe"
+ *               username:
+ *                 type: string
+ *                 example: "johndoe"
  *               email:
  *                 type: string
  *                 format: email
  *                 example: "john@example.com"
  *               phone:
- *                  type: string
- *                  example: "08023456789"
+ *                 type: string
+ *                 example: "08023456789"
  *               password:
  *                 type: string
  *                 example: "securePassword123"
@@ -92,5 +92,6 @@ router.post("/login", (req, res, next) => authController.login(req, res, next));
  *         description: Invalid input or user already exists
  */
 router.post("/register", (req, res, next) => authController.signUp(req, res, next));
+
 
 export { router as authRoutes };
