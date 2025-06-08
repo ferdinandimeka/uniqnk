@@ -113,6 +113,6 @@
     "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "src/types/**/*"],
+  "include": ["src/**/*.ts", "src/types/**/*", "swagger.ts"],
   "exclude": ["node_modules"]
 }

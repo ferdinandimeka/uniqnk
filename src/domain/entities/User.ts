@@ -3,7 +3,7 @@ export class User {
         public readonly id: string,
         public fullName: string,
         public username: string,
-        public emailAddress: string,
+        public email: string,
         public phone: string,
         public password: string,
     ) {}

@@ -19,7 +19,18 @@ const updateUser = new UpdateUser(userRepository);
 const deleteUser = new DeleteUser(userRepository);
 const userController = new UserController(getAllUsers, createUser, getUserById, updateUser, deleteUser);
 
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get all users
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: List of users
+ */
 router.get("/", (req, res, next) => userController.getAll(req, res, next));
+
 router.post("/", (req, res, next) => userController.create(req, res, next));
 router.get("/:id", (req, res, next) => userController.getUserById(req, res, next));
 router.put("/:id", (req, res, next) => userController.update(req, res, next));
