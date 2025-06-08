@@ -14,7 +14,7 @@ const authController = new AuthController(loginUser, registerUser);
 
 /**
  * @swagger
- * /auth/login:
+ * /api/v1/auth/login:
  *   post:
  *     summary: Login a user
  *     tags: [Auth]
@@ -52,7 +52,7 @@ router.post("/login", (req, res, next) => authController.login(req, res, next));
 
 /**
  * @swagger
- * /auth/register:
+ * /api/v1/auth/register:
  *   post:
  *     summary: Register a new user
  *     tags: [Auth]

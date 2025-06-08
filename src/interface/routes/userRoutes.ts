@@ -21,7 +21,14 @@ const userController = new UserController(getAllUsers, createUser, getUserById, 
 
 /**
  * @swagger
- * /users:
+ * tags:
+ *   name: Users
+ *   description: User management endpoints
+ */
+
+/**
+ * @swagger
+ * /api/v1/users:
  *   get:
  *     summary: Get all users
  *     tags: [Users]
@@ -31,9 +38,89 @@ const userController = new UserController(getAllUsers, createUser, getUserById, 
  */
 router.get("/", (req, res, next) => userController.getAll(req, res, next));
 
-router.post("/", (req, res, next) => userController.create(req, res, next));
+/**
+* @swagger
+ * /api/v1/users/{id}:
+ *   get:
+ *     summary: Get a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User found
+ *       404:
+ *         description: User not found
+ */
+
 router.get("/:id", (req, res, next) => userController.getUserById(req, res, next));
+
+/**
+ * @swagger
+ * /api/v1/users/{id}:
+ *   put:
+ *     summary: Update a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fullName:
+ *                 type: string
+ *                 example: "Updated Name"
+ *               username:
+ *                 type: string
+ *                 example: "updatedusername"
+ *               email:
+ *                 type: string
+ *                 example: "updated@example.com"
+ *               phone:
+ *                 type: string
+ *                 example: "08123456789"
+ *     responses:
+ *       200:
+ *         description: User updated
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: User not found
+ */
 router.put("/:id", (req, res, next) => userController.update(req, res, next));
+
+/**
+ * @swagger
+ * /api/v1/users/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User deleted
+ *       404:
+ *         description: User not found
+ */
 router.delete("/:id", (req, res, next) => userController.delUser(req, res, next));
 
 export { router as userRoutes };
