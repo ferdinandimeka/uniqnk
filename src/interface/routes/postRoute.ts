@@ -46,6 +46,24 @@ const postController = new PostController(
     getRankedPosts,
 );
 
+/**
+ * @swagger
+ * tags:
+ *   name: Posts
+ *   description: Post management endpoints
+ */
+
+
+/**
+ * @swagger
+ * /api/v1/posts:
+ *   get:
+ *     summary: Get ranked posts
+ *     tags: [Posts]
+ *     responses:
+ *       200:
+ *         description: List of ranked posts
+ */
 router.get("/", async (req, res, next) => {
     try {
         await postController.getRankedPosts(req, res, next);
@@ -53,18 +71,136 @@ router.get("/", async (req, res, next) => {
         next(err);
     }
 });
+
+/**
+ * @swagger
+ * /api/v1/posts:
+ *   post:
+ *     summary: Create a new post
+ *     tags: [Posts]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *               content:
+ *                 type: string
+ *               media:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *             required:
+ *               - userId
+ *               - content
+ *     responses:
+ *       201:
+ *         description: Post created
+ */
 router.post("/", (req, res, next) => {
     postController.createPost(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{id}:
+ *   put:
+ *     summary: Update a post by ID
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *               media:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Post updated
+ *       404:
+ *         description: Post not found
+ */
 router.put("/:id", (req, res, next) => {
     postController.updatePost(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{id}:
+ *   delete:
+ *     summary: Delete a post by ID
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post deleted
+ *       404:
+ *         description: Post not found
+ */
 router.delete("/:id", (req, res, next) => {
     postController.deletePost(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/user/{userId}:
+ *   get:
+ *     summary: Get posts by user ID
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: List of user's posts
+ */
 router.get("/user/:userId", (req, res, next) => {
     postController.getPostsByUserId(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{postId}/like:
+ *   post:
+ *     summary: Like a post
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post liked
+ */
 router.post("/:postId/like", async (req, res, next) => {
     try {
         await postController.addLikeToPost(req, res, next);
@@ -72,24 +208,150 @@ router.post("/:postId/like", async (req, res, next) => {
         next(err);
     }
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{postId}/like:
+*   delete:
+ *     summary: Unlike a post
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post unliked
+ */
 router.delete("/:postId/like", (req, res, next) => { 
     postController.removeLikeFromPost(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{postId}/share:
+ *   post:
+ *     summary: share a post
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post shared
+ */
 router.post("/:postId/share", (req, res, next) => { 
     postController.addShareToPost(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{postId}/share:
+*   delete:
+ *     summary: Unshare a post
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post unshared
+ */
 router.delete("/:postId/share", (req, res, next) => {
     postController.removeShareFromPost(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{postId}/reaction:
+ *   post:
+ *     summary: react to a post
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post reaction
+ */
 router.post("/:postId/reaction", (req, res, next) => {
     postController.addReactionToPost(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{postId}/reaction:
+*   delete:
+ *     summary: Unreact to a post
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post unreaction
+ */
 router.delete("/:postId/reaction", (req, res, next) => {
     postController.removeReactionFromPost(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{postId}/comment:
+ *   post:
+ *     summary: comment to a post
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post comment
+ */
 router.post("/:postId/comment", (req, res, next) => {
     postController.addCommentToPost(req, res, next).catch(next);
 });
+
+/**
+ * @swagger
+ * /api/v1/posts/{postId}/comment:
+*   delete:
+ *     summary: Uncomment to a post
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post uncomment
+ */
 router.delete("/:postId/comment", (req, res, next) => {
     postController.removeCommentFromPost(req, res, next).catch(next);
 });
