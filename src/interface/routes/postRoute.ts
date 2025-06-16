@@ -89,7 +89,7 @@ router.get("/", async (req, res, next) => {
  *                 type: string
  *               content:
  *                 type: string
- *               media:
+ *               mediaUrls:
  *                 type: array
  *                 items:
  *                   type: string
