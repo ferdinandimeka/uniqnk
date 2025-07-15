@@ -39,28 +39,28 @@ mongoose
 
 const app = express();
 
-const allowedOrigins = [
-  'http://127.0.0.1:3001',
-  'http://localhost:3001', 
-  'http://localhost:3000'
-];
+// const allowedOrigins = [
+//   'http://127.0.0.1:3001',
+//   'http://localhost:3001', 
+//   'http://localhost:3000'
+// ];
 
-// Use the cors middleware before any route handlers
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        // Allow requests with no origin (like curl or Postman)
-        callback(null, true);
-      } else {
-        callback(new Error('The CORS policy for this site does not allow access from the specified origin.'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-  })
-);
+// // Use the cors middleware before any route handlers
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         // Allow requests with no origin (like curl or Postman)
+//         callback(null, true);
+//       } else {
+//         callback(new Error('The CORS policy for this site does not allow access from the specified origin.'));
+//       }
+//     },
+//     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization'],
+//     credentials: true,
+//   })
+// );
 
 // Security headers for COOP and COEP
 app.use((req, res, next) => {
@@ -70,7 +70,7 @@ app.use((req, res, next) => {
 });
 
 
-// app.options('*', cors()); // Enable preflight requests for all routes
+app.options('*', cors()); // Enable preflight requests for all routes
 
 app.use(express.json());
 app.use(limiter); // prevent brute-force attacks by limiting the number of requests a client can make in a given period

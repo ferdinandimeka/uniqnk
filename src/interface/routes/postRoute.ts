@@ -126,7 +126,7 @@ router.post("/", (req, res, next) => {
  *             properties:
  *               content:
  *                 type: string
- *               media:
+ *               mediaUrls:
  *                 type: array
  *                 items:
  *                   type: string
