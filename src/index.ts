@@ -70,7 +70,7 @@ app.use((req, res, next) => {
 });
 
 
-app.options('*', cors()); // Enable preflight requests for all routes
+// app.options('*', cors()); // Enable preflight requests for all routes
 
 app.use(express.json());
 app.use(limiter); // prevent brute-force attacks by limiting the number of requests a client can make in a given period
