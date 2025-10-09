@@ -8,6 +8,7 @@ import { errorHandler } from "./interface/middleware/errorHandler";
 import { userRoutes } from "./interface/routes/userRoutes";
 import { authRoutes } from "./interface/routes/authRoute";
 import { storyRoutes } from "./interface/routes/storyRoutes";
+import { postRoutes } from "./interface/routes/postRoute";
 import "./jobs/cleanup"; // Import the cleanup job
 import cors from 'cors';
 import dotenv from "dotenv";
@@ -73,14 +74,15 @@ app.use((req, res, next) => {
 // app.options('*', cors()); // Enable preflight requests for all routes
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(limiter); // prevent brute-force attacks by limiting the number of requests a client can make in a given period
 app.use(helmet()); // secure http headers and protect app from well known web vulnerabilities
 
 app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/story", storyRoutes)
+app.use("/api/v1/posts", postRoutes)
 
-app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use((err: any, req: any, res: any, next: any) => errorHandler(err, req, res, next));
 setupSwagger(app);

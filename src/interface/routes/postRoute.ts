@@ -14,6 +14,7 @@ import { DeletePost } from "../../use-cases/post/deletePost"
 import { AddComment } from "../../use-cases/post/addComment"
 import { GetByUserId } from "../../use-cases/post/getByUserId"
 import { RemoveComment } from "../../use-cases/post/removeComment"
+import { GetAllPosts } from "../../use-cases/post/getAllPost"
 
 const router = Router();
 const postRepository = new MongoPostRepository();
@@ -30,6 +31,7 @@ const deletePost = new DeletePost(postRepository);
 const addComment = new AddComment(postRepository);
 const removeComment = new RemoveComment(postRepository);
 const getByUserId = new GetByUserId(postRepository);
+const getAllPost = new GetAllPosts(postRepository);
 const postController = new PostController(
     addLike,
     removeLike,
@@ -44,6 +46,7 @@ const postController = new PostController(
     getByUserId,
     removeComment,
     getRankedPosts,
+    getAllPost
 );
 
 /**
@@ -64,9 +67,27 @@ const postController = new PostController(
  *       200:
  *         description: List of ranked posts
  */
-router.get("/", async (req, res, next) => {
+router.get("/ranked", async (req, res, next) => {
     try {
         await postController.getRankedPosts(req, res, next);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * @swagger
+ * /api/v1/posts:
+ *   get:
+ *     summary: Get posts
+ *     tags: [Posts]
+ *     responses:
+ *       200:
+ *         description: List of posts
+ */
+router.get("/all", async (req, res, next) => {
+    try {
+        await postController.getAllPost(req, res, next);
     } catch (err) {
         next(err);
     }
@@ -355,3 +376,6 @@ router.post("/:postId/comment", (req, res, next) => {
 router.delete("/:postId/comment", (req, res, next) => {
     postController.removeCommentFromPost(req, res, next).catch(next);
 });
+
+
+export { router as postRoutes };

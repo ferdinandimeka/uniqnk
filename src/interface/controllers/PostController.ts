@@ -1,3 +1,4 @@
+// import { GetAllPosts } from './../../use-cases/post/getAllPost';
 import { AddComment } from './../../use-cases/post/addComment';
 import { Request, Response, NextFunction } from "express";
 import { ApiResponse } from "../../utils/apiResponse";
@@ -13,6 +14,7 @@ import { UpdatePost } from "../../use-cases/post/updatePost";
 import { DeletePost } from "../../use-cases/post/deletePost";
 import { GetByUserId } from "../../use-cases/post/getByUserId";
 import { RemoveComment } from "../../use-cases/post/removeComment";
+import { GetAllPosts } from "../../use-cases/post/getAllPost";
 
 export class PostController {
     constructor(
@@ -29,6 +31,7 @@ export class PostController {
         private getByUserId: GetByUserId,
         private removeComment: RemoveComment,
         private getRankedPostsUseCase: GetRankedPosts,
+        private getAllPosts: GetAllPosts,
         // Add other use-cases here as needed, e.g., createPost, updatePost, etc.
     ) {}
 
@@ -190,9 +193,21 @@ export class PostController {
 
     async getRankedPosts(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const { userId } = req.params;
+            const { userId } = req.query;
+            if (!userId || typeof userId !== "string") {
+                return res.status(400).json({ message: "userId query parameter is required" });
+            }
             const rankedPosts = await this.getRankedPostsUseCase.execute(userId);
             return res.status(200).json(new ApiResponse(200, rankedPosts, "Ranked posts fetched successfully"));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getAllPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const posts = await this.getAllPosts.execute();
+            return res.status(200).json(new ApiResponse(200, posts, "All posts fetched successfully"));
         } catch (error) {
             next(error);
         }
