@@ -1,6 +1,7 @@
 import swaggerJsDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 import { Express } from 'express';
+import path from "path"
 
 const options = {
     definition: {
@@ -11,7 +12,7 @@ const options = {
             description: 'API documentation for Uniqnk application',
         },
     },
-    apis: ['./src/interface/routes/*.ts'], // Path to the API docs
+    apis: [path.join(__dirname, '../interface/routes/*.js')], // Path to the API docs
 };
 
 const swaggerSpec = swaggerJsDoc(options);
