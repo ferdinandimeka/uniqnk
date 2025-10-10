@@ -59,7 +59,7 @@ const postController = new PostController(
 
 /**
  * @swagger
- * /api/v1/posts:
+ * /api/v1/posts/ranked:
  *   get:
  *     summary: Get ranked posts
  *     tags: [Posts]
@@ -77,7 +77,7 @@ router.get("/ranked", async (req, res, next) => {
 
 /**
  * @swagger
- * /api/v1/posts:
+ * /api/v1/posts/all:
  *   get:
  *     summary: Get posts
  *     tags: [Posts]
