@@ -12,7 +12,7 @@ const options = {
             description: 'API documentation for Uniqnk application',
         },
     },
-    apis: [path.join(__dirname, '../interface/routes/*.ts')], // Path to the API docs
+    apis: ['./src/interface/routes/*.ts'], // Path to the API docs
 };
 
 const swaggerSpec = swaggerJsDoc(options);
