@@ -61,19 +61,27 @@ const postController = new PostController(
  * @swagger
  * /api/v1/posts/ranked:
  *   get:
- *     summary: Get ranked posts
+ *     summary: Get ranked posts for a user
  *     tags: [Posts]
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The user ID to get ranked posts for
  *     responses:
  *       200:
- *         description: List of ranked posts
+ *         description: List of ranked posts for the given user
  */
 router.get("/ranked", async (req, res, next) => {
-    try {
-        await postController.getRankedPosts(req, res, next);
-    } catch (err) {
-        next(err);
-    }
+  try {
+    await postController.getRankedPosts(req, res, next);
+  } catch (err) {
+    next(err);
+  }
 });
+
 
 /**
  * @swagger
