@@ -15,8 +15,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15mins
-  max: 100
+  windowMs: 5 * 60 * 1000, // 5mins
+  max: 200
 })
 
 console.log('MongoDB URI:', process.env.MONGO_URI);
