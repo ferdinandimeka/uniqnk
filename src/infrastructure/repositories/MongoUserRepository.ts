@@ -45,7 +45,13 @@ export class MongoUserRepository implements UserRepository {
         return user ? this.toUser(user) : null;
     }
 
-    async create(user: User): Promise<User> {
+    async create(user: User, userId: string): Promise<User> {
+        // get the user by userId to check if it exists
+        const existingUser = await this.findById(userId);
+        if (!existingUser) {
+            throw new Error('User not found');
+        }
+        // proceed to create the new user
         const newUser = new UserModel(user);
         const savedUser = await newUser.save();
         return this.toUser(savedUser);

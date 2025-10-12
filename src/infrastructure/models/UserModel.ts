@@ -9,6 +9,8 @@ interface IUser extends Document {
     profilePicture?: string;
     coverPhoto?: string;
     bio?: string;
+    marital_status?: string;
+    gender?: string;
     phone?: string;
     location?: string;
     website?: string;
@@ -33,6 +35,8 @@ const UserSchema: Schema = new Schema({
     password: { type: String, required: true },
     profilePicture: { type: String },
     coverPhoto: { type: String },
+    gender: { type: String },
+    marital_status: { type: String },
     bio: { type: String },
     phone: { type: String },
     location: { type: String },

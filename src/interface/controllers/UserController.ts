@@ -5,8 +5,10 @@ import { NextFunction, Request, Response } from 'express'
 // import { DIContainer } from '../../infrastructure/DIContainer';
 import { GetAllUsers } from '../../use-cases/user/getAllUsers';
 import { DeleteUser } from '../../use-cases/user/deleteUser';
-import { CreateUserDto } from '../dto/CreateUserDto';
-import { validate } from 'class-validator';
+import { validate } from "class-validator";
+import { plainToInstance } from "class-transformer";
+// import { CreateUserDto } from "../dto/UserResponseDto";
+import { UserResponseDto } from "../dto/CreateUserDto";
 
 export class UserController {
     constructor(private getAllUsers: GetAllUsers, private createUser: CreateUser, private getUserByid: GetUserById, private updateUser: UpdateUser, private deleteUser: DeleteUser) {}
@@ -19,17 +21,39 @@ export class UserController {
     }
 
     async create(req: Request, res: Response, next: NextFunction): Promise<void> {
-        // Validate the request body
-        const dto = Object.assign(new CreateUserDto(), req.body);
-        const errors = await validate(dto);
+        try {
+            // // 1️⃣ Validate input
+            // const dto = Object.assign(new CreateUserDto(), req.body);
+            // const errors = await validate(dto);
 
-        if (errors.length > 0) {
-            res.status(400).json({ errors })
+            // if (errors.length > 0) {
+            //     const validationErrors = errors.map(err => ({
+            //         property: err.property,
+            //         constraints: err.constraints
+            //     }));
+            //     res.status(400).json({
+            //         message: "Validation failed",
+            //         errors: validationErrors
+            //     });
+            //     return;
+            // }
+
+            // 2️⃣ Create user (use-case returns a Mongoose doc or plain object)
+            const user = await this.createUser.execute(req.body, req.params.id);
+
+            // 3️⃣ Transform response using class-transformer
+            const userResponse = plainToInstance(UserResponseDto, user, {
+                excludeExtraneousValues: true, // ensures only @Expose fields appear
+            });
+
+            // 4️⃣ Send clean, safe response
+            res.status(201).json({
+                message: "User created successfully",
+                data: userResponse
+            });
+        } catch (error) {
+            next(error);
         }
-
-        const user = await this.createUser.execute(dto);
-        res.status(201).json(user);
-        next();
     }
 
     async update(req: Request, res: Response, next: NextFunction): Promise<void> {

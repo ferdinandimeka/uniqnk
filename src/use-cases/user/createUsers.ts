@@ -4,7 +4,7 @@ import { User } from "../../domain/entities/User";
 export class CreateUser {
     constructor(private userRepository: UserRepository) {}
 
-    async execute(user: User) {
-        return await this.userRepository.create(user);
+    async execute(user: User, userId: string): Promise<User> {
+        return await this.userRepository.create(user, userId);
     }
 }
