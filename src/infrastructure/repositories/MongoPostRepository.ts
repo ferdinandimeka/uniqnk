@@ -33,7 +33,7 @@ export class MongoPostRepository implements PostRepository {
     }
 
     async update(post: Post): Promise<Post | null> {
-        const newPost = await PostModel.findByIdAndUpdate(post.id, post);
+        const newPost = await PostModel.findByIdAndUpdate(post.id, post, { new: true });
         return this.toPost(newPost);
     }
 

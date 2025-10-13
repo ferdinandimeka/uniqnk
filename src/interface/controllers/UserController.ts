@@ -9,6 +9,7 @@ import { validate } from "class-validator";
 import { plainToInstance } from "class-transformer";
 // import { CreateUserDto } from "../dto/UserResponseDto";
 import { UserResponseDto } from "../dto/CreateUserDto";
+import { PostModel } from "../../infrastructure/models/PostModel"; // adjust relative path if needed
 
 export class UserController {
     constructor(private getAllUsers: GetAllUsers, private createUser: CreateUser, private getUserByid: GetUserById, private updateUser: UpdateUser, private deleteUser: DeleteUser) {}
@@ -67,15 +68,36 @@ export class UserController {
     }
 
     async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const userId = req.params.id;
-        const user = await this.getUserByid.execute(userId);
-        if (!user) {
-            res.status(404).json({ message: 'User not found' });
-        } else {
-            res.json(user);
+        try {
+            const userId = req.params.id;
+
+            const user = await this.getUserByid.execute(userId);
+            if (!user) {
+            res.status(404).json({ message: "User not found" });
+            return;
+            }
+
+            const posts = await PostModel.find({ user: userId })
+            .populate("user", "first_name last_name avatar")
+            // .populate("comments")
+            .sort({ createdAt: -1 });
+
+            // Remove the posts array from the user (to avoid duplication)
+            const userObj = (user && typeof (user as any).toObject === "function") ? (user as any).toObject() : user;
+            const { posts: _omitPosts, ...userWithoutPosts } = userObj;
+
+            res.status(200).json({
+            user: userWithoutPosts,
+            posts,
+            });
+
+            next();
+        } catch (error) {
+            console.error("Error fetching user by ID:", error);
+            res.status(500).json({ message: "Internal server error" });
         }
-        next();
     }
+
 
     async delUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         const userId = req.params.id;
