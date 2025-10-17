@@ -56,46 +56,102 @@ export class MongoPostRepository implements PostRepository {
         return this.toPost(post);
     }
 
-    async removeLike(postId: string, userId: string): Promise<Post | null> {
-        const post = await PostModel.findById(postId);
-        const userObjectId = new mongoose.Types.ObjectId(userId);
+    // async removeLike(postId: string, userId: string): Promise<Post | null> {
+    //     const post = await PostModel.findById(postId);
+    //     const userObjectId = new mongoose.Types.ObjectId(userId);
 
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
-            throw new Error('Invalid user ID format');
-        }
+    //     if (!mongoose.Types.ObjectId.isValid(userId)) {
+    //         throw new Error('Invalid user ID format');
+    //     }
 
+    //     if (!mongoose.Types.ObjectId.isValid(postId)) {
+    //         throw new Error('Invalid post ID format');
+    //     }
+
+    //     if (!post) {
+    //         throw new Error('Post not found');
+    //     }
+    //     if (post.likes && post.likes.includes(userObjectId)) {
+    //         // Remove the like from the post
+    //         post.likes = post.likes.filter((like: mongoose.Types.ObjectId) => like.toString() !== userObjectId.toString());
+    //         await post.save();
+    //     }
+    //     return this.toPost(post);
+    // }
+
+   async removeLike(postId: string, userId: string): Promise<Post | null> {
+  if (!mongoose.Types.ObjectId.isValid(postId)) {
+    throw new Error("Invalid post ID format");
+  }
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid user ID format");
+  }
+
+  const post = await PostModel.findById(postId);
+  if (!post) throw new Error("Post not found");
+
+  const beforeCount = post.likes.length;
+
+  // ✅ Safely filter by string value
+  const updatedLikes = post.likes.filter(
+    (like) => like.toString() !== userId.toString()
+  );
+
+  post.set("likes", updatedLikes); // 🔥 ensures overwrite
+  await post.save({ validateBeforeSave: false });
+
+  console.log(`Removed ${beforeCount - post.likes.length} likes`);
+
+  return this.toPost(post);
+}
+
+
+
+    
+    // async addComment(postId: string, commentId: string): Promise<Post | null> {
+    //     const post = await PostModel.findById(postId);
+    //     const commentObjectId = new mongoose.Types.ObjectId(commentId);
+
+    //     if (!mongoose.Types.ObjectId.isValid(postId)) {
+    //         throw new Error('Invalid post ID format');
+    //     }
+        
+    //     if (!post) {
+    //         throw new Error('Post not found');
+    //     }
+    //     if (!post.comments) {
+    //         post.comments = [];
+    //     }
+    //     if (!post.comments.includes(commentObjectId)) {
+    //         post.comments.push(commentObjectId);
+    //         await post.save();
+    //     }
+    //     return this.toPost(post);
+    // }
+
+    async addComment(postId: string, commentId: string): Promise<Post | null> {
         if (!mongoose.Types.ObjectId.isValid(postId)) {
             throw new Error('Invalid post ID format');
         }
+        if (!mongoose.Types.ObjectId.isValid(commentId)) {
+            throw new Error('Invalid comment ID format');
+        }
 
-        if (!post) {
-            throw new Error('Post not found');
-        }
-        if (post.likes && post.likes.includes(userObjectId)) {
-            // Remove the like from the post
-            post.likes = post.likes.filter((like: mongoose.Types.ObjectId) => like.toString() !== userObjectId.toString());
-            await post.save();
-        }
-        return this.toPost(post);
-    }
-    async addComment(postId: string, commentId: string): Promise<Post | null> {
         const post = await PostModel.findById(postId);
+        if (!post) {
+            throw new Error("Post not found");
+        }
+
         const commentObjectId = new mongoose.Types.ObjectId(commentId);
 
-        if (!mongoose.Types.ObjectId.isValid(postId)) {
-            throw new Error('Invalid post ID format');
-        }
-        
-        if (!post) {
-            throw new Error('Post not found');
-        }
         if (!post.comments) {
             post.comments = [];
         }
-        if (!post.comments.includes(commentObjectId)) {
+        if (!post.comments.some((c: any) => c.toString() === commentObjectId.toString())) {
             post.comments.push(commentObjectId);
             await post.save();
         }
+
         return this.toPost(post);
     }
 

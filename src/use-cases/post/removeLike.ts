@@ -10,7 +10,7 @@ export class RemoveLike {
             return null;
         }
 
-        post.likes = post.likes.filter((like) => like !== userId);
+        post.likes = post.likes.filter((like) => like.toString() !== userId.toString());
         return await this.postRepository.update(post);
     }
 }

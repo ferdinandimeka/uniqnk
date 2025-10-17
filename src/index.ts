@@ -9,6 +9,7 @@ import { userRoutes } from "./interface/routes/userRoutes";
 import { authRoutes } from "./interface/routes/authRoute";
 import { storyRoutes } from "./interface/routes/storyRoutes";
 import { postRoutes } from "./interface/routes/postRoute";
+import { commentRoutes } from "./interface/routes/commentRoute";
 import "./jobs/cleanup"; // Import the cleanup job
 import cors from 'cors';
 import dotenv from "dotenv";
@@ -82,6 +83,7 @@ app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/story", storyRoutes)
 app.use("/api/v1/posts", postRoutes)
+app.use("/api/v1/comments", commentRoutes)
 
 app.use(express.static("public"));
 app.use((err: any, req: any, res: any, next: any) => errorHandler(err, req, res, next));

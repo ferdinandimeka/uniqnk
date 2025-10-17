@@ -63,19 +63,45 @@ export class PostController {
         }
     }
 
+    // async addCommentToPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+    //     try {
+    //         const { postId } = req.params;
+    //         const { comment } = req.body;
+    //         const updatedPost = await this.addComment.execute(postId, comment);
+    //         if (!updatedPost) {
+    //             return res.status(404).json(new ApiResponse(404, null, "Post not found"));
+    //         }
+    //         return res.status(200).json(new ApiResponse(200, updatedPost, "Comment added successfully"));
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // }
     async addCommentToPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
             const { postId } = req.params;
-            const { comment } = req.body;
-            const updatedPost = await this.addComment.execute(postId, comment);
+            const { comment, userId } = req.body;
+            // const userId = req.user?.id; // or however you attach user info
+
+            if (!userId) {
+            return res.status(401).json(new ApiResponse(401, null, "Unauthorized"));
+            }
+
+            if (!comment || typeof comment !== "string") {
+                return res.status(400).json(new ApiResponse(400, null, "Invalid comment"));
+            }
+
+            const updatedPost = await this.addComment.execute(postId, userId, comment);
+
             if (!updatedPost) {
                 return res.status(404).json(new ApiResponse(404, null, "Post not found"));
             }
+
             return res.status(200).json(new ApiResponse(200, updatedPost, "Comment added successfully"));
         } catch (error) {
             next(error);
         }
     }
+
 
     async addShareToPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {

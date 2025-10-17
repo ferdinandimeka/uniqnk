@@ -1,5 +1,6 @@
 import { Router } from "express"
 import { MongoPostRepository } from "../../infrastructure/repositories/MongoPostRepository"
+import { MongoCommentRepository } from "../../infrastructure/repositories/MongoCommentRepository"
 import { GetRankedPosts } from "../../use-cases/post/getRankPost"
 import { PostController } from "../controllers/PostController"
 import { AddLike } from "../../use-cases/post/addLike"
@@ -18,6 +19,7 @@ import { GetAllPosts } from "../../use-cases/post/getAllPost"
 
 const router = Router();
 const postRepository = new MongoPostRepository();
+const commentRepository = new MongoCommentRepository();
 const getRankedPosts = new GetRankedPosts(postRepository);
 const addLike = new AddLike(postRepository);
 const removeLike = new RemoveLike(postRepository);
@@ -28,7 +30,7 @@ const removeReaction = new RemoveReaction(postRepository);
 const createPost = new CreatePost(postRepository);
 const updatePost = new UpdatePost(postRepository);
 const deletePost = new DeletePost(postRepository);
-const addComment = new AddComment(postRepository);
+const addComment = new AddComment(postRepository, commentRepository);
 const removeComment = new RemoveComment(postRepository);
 const getByUserId = new GetByUserId(postRepository);
 const getAllPost = new GetAllPosts(postRepository);
@@ -240,7 +242,7 @@ router.post("/:postId/like", async (req, res, next) => {
 
 /**
  * @swagger
- * /api/v1/posts/{postId}/like:
+ * /api/v1/posts/{postId}/unlike:
 *   delete:
  *     summary: Unlike a post
  *     tags: [Posts]
@@ -255,7 +257,7 @@ router.post("/:postId/like", async (req, res, next) => {
  *       200:
  *         description: Post unliked
  */
-router.delete("/:postId/like", (req, res, next) => { 
+router.delete("/:postId/unlike", (req, res, next) => { 
     postController.removeLikeFromPost(req, res, next).catch(next);
 });
 
@@ -347,7 +349,7 @@ router.delete("/:postId/reaction", (req, res, next) => {
  * @swagger
  * /api/v1/posts/{postId}/comment:
  *   post:
- *     summary: comment to a post
+ *     summary: Add a comment to a post
  *     tags: [Posts]
  *     parameters:
  *       - in: path
@@ -355,14 +357,31 @@ router.delete("/:postId/reaction", (req, res, next) => {
  *         required: true
  *         schema:
  *           type: string
- *         description: Post ID
+ *         description: The ID of the post to comment on
+ *     requestBody:
+ *       required: true
+ *       comment:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - comment
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 example: "This is my comment!"
  *     responses:
  *       200:
- *         description: Post comment
+ *         description: Comment successfully added
+ *       400:
+ *         description: Invalid request data
+ *       404:
+ *         description: Post not found
  */
 router.post("/:postId/comment", (req, res, next) => {
-    postController.addCommentToPost(req, res, next).catch(next);
+  postController.addCommentToPost(req, res, next).catch(next);
 });
+
 
 /**
  * @swagger
