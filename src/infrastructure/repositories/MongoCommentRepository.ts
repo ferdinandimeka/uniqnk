@@ -52,6 +52,7 @@ export class MongoCommentRepository implements CommentRepository {
    */
   async findById(id: string): Promise<IComment | null> {
     return CommentModel.findById(id)
+      .populate("post")
       .populate("user", "username profilePicture")
       .populate("replies")
       .exec();
