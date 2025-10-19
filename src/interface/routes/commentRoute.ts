@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import { MongoCommentRepository } from "../../infrastructure/repositories/MongoCommentRepository";
 import { ReplyToCommentUseCase } from "../../use-cases/comment/replyToComment";
+import { GetCommentByIdUseCase } from "../../use-cases/comment/getById";
 import { CommentController } from "../controllers/CommentControllers";
 
 const router = Router();
@@ -8,8 +9,9 @@ const router = Router();
 const commentRepository = new MongoCommentRepository();
 // const createComment = new CreateComment(commentRepository);
 const replyToComment = new ReplyToCommentUseCase(commentRepository);
+const getCommentById = new GetCommentByIdUseCase(commentRepository);
 
-const commentController = new CommentController( replyToComment);
+const commentController = new CommentController( replyToComment, getCommentById);
 
 /**
  * @swagger
@@ -59,6 +61,36 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await commentController.replyToComment(req, res, next);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
+/**
+ * @swagger
+ * /api/v1/comments/{commentId}:
+ *   get:
+ *     summary: Get a comment by ID
+ *     tags: [Comments]
+ *     parameters:
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         description: The ID of the comment to retrieve
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Comment retrieved successfully
+ *       404:
+ *         description: Comment not found
+ */
+router.get(
+  "/:commentId",
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await commentController.getCommentById(req, res, next);
     } catch (err) {
       next(err);
     }

@@ -1,10 +1,12 @@
 import { ReplyToCommentUseCase } from "./../../use-cases/comment/replyToComment";
+import { GetCommentByIdUseCase } from "../../use-cases/comment/getById";
 import { NextFunction, Request, Response } from 'express'
 
 export class CommentController {
   constructor(
     // private addCommentUseCase,
-    private replyToCommentUseCase: ReplyToCommentUseCase
+    private replyToCommentUseCase: ReplyToCommentUseCase, 
+    private getCommentByIdUseCase: GetCommentByIdUseCase
   ) {}
 
   async replyToComment(req: Request, res: Response, next: NextFunction): Promise<Response> {
@@ -26,6 +28,21 @@ export class CommentController {
       });
     } catch (error) {
       console.error("Error replying to comment:", error);
+      const message = error instanceof Error ? error.message : String(error);
+      return res.status(500).json({ success: false, message });
+    }
+  }
+
+  async getCommentById(req: Request, res: Response, next: NextFunction): Promise<Response> {
+    try {
+      const { commentId } = req.params;
+      const comment = await this.getCommentByIdUseCase.execute(commentId);
+      return res.status(200).json({
+        success: true,
+        data: comment,
+      });
+    } catch (error) {
+      console.error("Error getting comment by ID:", error);
       const message = error instanceof Error ? error.message : String(error);
       return res.status(500).json({ success: false, message });
     }
