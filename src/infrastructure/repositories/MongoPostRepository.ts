@@ -14,8 +14,16 @@ export class MongoPostRepository implements PostRepository {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             throw new Error('Invalid post ID format');
         }
-        const post = await PostModel.findById(id);
-        return post ? this.toPost(post) : null;
+        // const post = await PostModel.findById(id);
+        // Re-fetch with populated comments AFTER saving
+        const populatedPost = await PostModel.findById(id)
+            .populate({
+                path: "comments",
+                populate: { path: "user", select: "username avatar" },
+            })
+            .lean(); // returns plain JS object, no need for `toPost`
+
+        return populatedPost as unknown as Post;
     }
 
     async findByUserId(userId: string): Promise<Post[]> {

@@ -16,6 +16,7 @@ import { AddComment } from "../../use-cases/post/addComment"
 import { GetByUserId } from "../../use-cases/post/getByUserId"
 import { RemoveComment } from "../../use-cases/post/removeComment"
 import { GetAllPosts } from "../../use-cases/post/getAllPost"
+import { GetPostById } from "../../use-cases/post/getPost"
 
 const router = Router();
 const postRepository = new MongoPostRepository();
@@ -34,6 +35,7 @@ const addComment = new AddComment(postRepository, commentRepository);
 const removeComment = new RemoveComment(postRepository);
 const getByUserId = new GetByUserId(postRepository);
 const getAllPost = new GetAllPosts(postRepository);
+const getPostById = new GetPostById(postRepository);
 const postController = new PostController(
     addLike,
     removeLike,
@@ -48,7 +50,8 @@ const postController = new PostController(
     getByUserId,
     removeComment,
     getRankedPosts,
-    getAllPost
+    getAllPost,
+    getPostById
 );
 
 /**
@@ -192,6 +195,29 @@ router.put("/:id", (req, res, next) => {
  */
 router.delete("/:id", (req, res, next) => {
     postController.deletePost(req, res, next).catch(next);
+});
+
+/**
+ * @swagger
+ * /api/v1/posts/{id}:
+ *   get:
+ *     summary: Get a post by ID
+ *     tags: [Posts]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Post ID
+ *     responses:
+ *       200:
+ *         description: Post found
+ *       404:
+ *         description: Post not found
+ */
+router.get("/:id", (req, res, next) => {
+    postController.getPostsById(req, res, next).catch(next);
 });
 
 /**
@@ -360,12 +386,13 @@ router.delete("/:postId/reaction", (req, res, next) => {
  *         description: The ID of the post to comment on
  *     requestBody:
  *       required: true
- *       comment:
+ *       content:
  *         application/json:
  *           schema:
  *             type: object
  *             required:
- *               - comment
+ *               - content
+ *               - userId
  *             properties:
  *               content:
  *                 type: string
@@ -384,6 +411,7 @@ router.delete("/:postId/reaction", (req, res, next) => {
 router.post("/:postId/comment", (req, res, next) => {
   postController.addCommentToPost(req, res, next).catch(next);
 });
+
 
 
 /**

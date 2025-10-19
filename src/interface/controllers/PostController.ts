@@ -15,6 +15,7 @@ import { DeletePost } from "../../use-cases/post/deletePost";
 import { GetByUserId } from "../../use-cases/post/getByUserId";
 import { RemoveComment } from "../../use-cases/post/removeComment";
 import { GetAllPosts } from "../../use-cases/post/getAllPost";
+import { GetPostById } from '../../use-cases/post/getPost';
 
 export class PostController {
     constructor(
@@ -32,6 +33,7 @@ export class PostController {
         private removeComment: RemoveComment,
         private getRankedPostsUseCase: GetRankedPosts,
         private getAllPosts: GetAllPosts,
+        private getPostById: GetPostById,
         // Add other use-cases here as needed, e.g., createPost, updatePost, etc.
     ) {}
 
@@ -44,6 +46,19 @@ export class PostController {
                 return res.status(404).json(new ApiResponse(404, null, "Post not found"));
             }
             return res.status(200).json(new ApiResponse(200, updatedPost, "Like added successfully"));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async getPostsById(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
+        try {
+            const { id } = req.params;
+            const post = await this.getPostById.execute(id);
+            if (!post) {
+                return res.status(404).json(new ApiResponse(404, null, "Post not found"));
+            }
+            return res.status(200).json(new ApiResponse(200, post, "Post retrieved successfully"));
         } catch (error) {
             next(error);
         }
@@ -83,7 +98,7 @@ export class PostController {
             // const userId = req.user?.id; // or however you attach user info
 
             if (!userId) {
-            return res.status(401).json(new ApiResponse(401, null, "Unauthorized"));
+                return res.status(401).json(new ApiResponse(401, null, "Unauthorized"));
             }
 
             if (!comment || typeof comment !== "string") {
