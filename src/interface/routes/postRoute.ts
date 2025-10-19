@@ -370,6 +370,9 @@ router.delete("/:postId/reaction", (req, res, next) => {
  *               content:
  *                 type: string
  *                 example: "This is my comment!"
+ *               userId:
+ *                 type: string
+ *                 example: "60d5ec49f1c2b14b2c8b4567"
  *     responses:
  *       200:
  *         description: Comment successfully added
@@ -386,7 +389,7 @@ router.post("/:postId/comment", (req, res, next) => {
 /**
  * @swagger
  * /api/v1/posts/{postId}/comment:
-*   delete:
+ *   delete:
  *     summary: Uncomment to a post
  *     tags: [Posts]
  *     parameters:
@@ -396,6 +399,18 @@ router.post("/:postId/comment", (req, res, next) => {
  *         schema:
  *           type: string
  *         description: Post ID
+ *     requestBody:
+ *       required: true
+ *       comment:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - commentId
+ *             properties:
+ *               commentId:
+ *                 type: string
+ *                 example: "60d5ec49f1c2b14b2c8b4567"
  *     responses:
  *       200:
  *         description: Post uncomment

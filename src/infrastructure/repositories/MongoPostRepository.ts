@@ -129,7 +129,7 @@ export class MongoPostRepository implements PostRepository {
     //     return this.toPost(post);
     // }
 
-    async addComment(postId: string, commentId: string): Promise<Post | null> {
+   async addComment(postId: string, commentId: string): Promise<Post | null> {
         if (!mongoose.Types.ObjectId.isValid(postId)) {
             throw new Error('Invalid post ID format');
         }
@@ -144,16 +144,24 @@ export class MongoPostRepository implements PostRepository {
 
         const commentObjectId = new mongoose.Types.ObjectId(commentId);
 
-        if (!post.comments) {
-            post.comments = [];
-        }
+        if (!post.comments) post.comments = [];
+
         if (!post.comments.some((c: any) => c.toString() === commentObjectId.toString())) {
             post.comments.push(commentObjectId);
             await post.save();
         }
 
-        return this.toPost(post);
+        // Re-fetch with populated comments AFTER saving
+        const populatedPost = await PostModel.findById(postId)
+            .populate({
+                path: "comments",
+                populate: { path: "user", select: "username avatar" },
+            })
+            .lean(); // returns plain JS object, no need for `toPost`
+
+        return populatedPost as unknown as Post;
     }
+
 
     async removeComment(postId: string, commentId: string): Promise<Post | null> {
         const post = await PostModel.findById(postId);

@@ -10,7 +10,7 @@ export class RemoveComment {
             return null;
         }
 
-        post.comments = post.comments.filter((comment) => comment !== commentId)
+        post.comments = post.comments.filter((comment) => comment.toString() !== commentId.toString())
         await this.postRepository.update(post);
 
         return post;

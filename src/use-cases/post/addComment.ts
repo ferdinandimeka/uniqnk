@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { PostRepository } from "../../domain/interfaces/postRepository";
 import { Post } from "../../domain/entities/Post";
 import { CommentRepository } from "../../domain/interfaces/commentRepository";
+import { PostModel } from "../../infrastructure/models/PostModel"; // <-- make sure this path matches your structure
 
 export class AddComment {
   constructor(
@@ -22,19 +23,28 @@ export class AddComment {
     const post = await this.postRepository.findById(postId);
     if (!post) return null;
 
-    // ✅ Create new comment
+    // ✅ Create a new comment
     const newComment = await this.commentRepository.create({
       post: postId,
       user: userId,
       content: comment,
     });
 
-    // ✅ Push the ObjectId of the comment as a string
+    // ✅ Add the comment to the post
     post.comments.push(String(newComment._id));
+    await this.postRepository.update(post);
 
-    // ✅ Save updated post
-    const updatedPost = await this.postRepository.update(post);
+    // ✅ Re-fetch the post with populated comments and users
+    const populatedPost = await PostModel.findById(postId)
+      .populate({
+        path: "comments",
+        populate: {
+          path: "user",
+          select: "username avatar",
+        },
+      })
+      .lean();
 
-    return updatedPost;
+    return populatedPost as unknown as Post;
   }
 }
