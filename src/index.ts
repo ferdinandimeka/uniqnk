@@ -81,7 +81,7 @@ app.use(helmet()); // secure http headers and protect app from well known web vu
 
 app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/users", userRoutes)
-app.use("/api/v1/story", storyRoutes)
+app.use("/api/v1/stories", storyRoutes)
 app.use("/api/v1/posts", postRoutes)
 app.use("/api/v1/comments", commentRoutes)
 
