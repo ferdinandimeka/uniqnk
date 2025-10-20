@@ -23,7 +23,16 @@ export class MongoPostRepository implements PostRepository {
             })
             .lean(); // returns plain JS object, no need for `toPost`
 
-        return populatedPost as unknown as Post;
+        if (!populatedPost) {
+            return null;
+        }
+
+        const postWithCounts = {
+            ...populatedPost,
+            num_comments: Array.isArray(populatedPost.comments) ? populatedPost.comments.length : 0,
+        };
+
+        return postWithCounts as unknown as Post;
     }
 
     async findByUserId(userId: string): Promise<Post[]> {
