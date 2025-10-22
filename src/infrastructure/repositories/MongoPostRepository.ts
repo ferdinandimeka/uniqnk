@@ -1,6 +1,7 @@
 import { Post } from "../../domain/entities/Post";
 import { PostRepository } from "../../domain/interfaces/postRepository";
 import { PostModel } from "../models/PostModel";
+import { CommentModel } from "../models/CommentModel";
 import { rankPosts } from "../../utils/ranking";
 import mongoose from "mongoose"
 
@@ -147,37 +148,57 @@ export class MongoPostRepository implements PostRepository {
     // }
 
    async addComment(postId: string, commentId: string): Promise<Post | null> {
-        if (!mongoose.Types.ObjectId.isValid(postId)) {
-            throw new Error('Invalid post ID format');
-        }
-        if (!mongoose.Types.ObjectId.isValid(commentId)) {
-            throw new Error('Invalid comment ID format');
-        }
-
-        const post = await PostModel.findById(postId);
-        if (!post) {
-            throw new Error("Post not found");
-        }
-
-        const commentObjectId = new mongoose.Types.ObjectId(commentId);
-
-        if (!post.comments) post.comments = [];
-
-        if (!post.comments.some((c: any) => c.toString() === commentObjectId.toString())) {
-            post.comments.push(commentObjectId);
-            await post.save();
-        }
-
-        // Re-fetch with populated comments AFTER saving
-        const populatedPost = await PostModel.findById(postId)
-            .populate({
-                path: "comments",
-                populate: { path: "user", select: "username avatar" },
-            })
-            .lean(); // returns plain JS object, no need for `toPost`
-
-        return populatedPost as unknown as Post;
+    // Validate ObjectId formats
+    if (!mongoose.Types.ObjectId.isValid(postId)) {
+        throw new Error("Invalid post ID format");
     }
+    if (!mongoose.Types.ObjectId.isValid(commentId)) {
+        throw new Error("Invalid comment ID format");
+    }
+
+    // Fetch Post
+    const post = await PostModel.findById(postId);
+    if (!post) {
+        throw new Error("Post not found");
+    }
+
+    // ✅ Verify comment exists before pushing
+    const commentExists = await CommentModel.findById(commentId);
+    if (!commentExists) {
+        throw new Error("Comment not found or failed to create");
+    }
+
+    const commentObjectId = new mongoose.Types.ObjectId(commentId);
+
+    // Initialize comments array if missing
+    if (!Array.isArray(post.comments)) {
+        post.comments = [];
+    }
+
+    // Avoid duplicates
+    const alreadyHasComment = post.comments.some(
+        (c: any) => c.toString() === commentObjectId.toString()
+    );
+    if (!alreadyHasComment) {
+        post.comments.push(commentObjectId);
+        await post.save();
+    }
+
+    // ✅ Re-fetch with populated comments & users
+    const populatedPost = await PostModel.findById(postId)
+        .populate({
+            path: "comments",
+            populate: { path: "user", select: "username avatar" },
+        })
+        .lean();
+
+    if (!populatedPost) {
+        throw new Error("Failed to populate post after adding comment");
+    }
+
+    return populatedPost as unknown as Post;
+}
+
 
 
     async removeComment(postId: string, commentId: string): Promise<Post | null> {
