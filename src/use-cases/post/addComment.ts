@@ -3,6 +3,7 @@ import { PostRepository } from "../../domain/interfaces/postRepository";
 import { Post } from "../../domain/entities/Post";
 import { CommentRepository } from "../../domain/interfaces/commentRepository";
 import { PostModel } from "../../infrastructure/models/PostModel"; // <-- make sure this path matches your structure
+import { UserModel } from "../../infrastructure/models/UserModel";
 
 export class AddComment {
   constructor(
@@ -22,6 +23,12 @@ export class AddComment {
     // ✅ Find the post
     const post = await this.postRepository.findById(postId);
     if (!post) return null;
+
+     // ✅ Check if user exists
+    const userExists = await UserModel.findById(userId);
+    if (!userExists) {
+      throw new Error("User not found");
+    }
 
     // ✅ Create a new comment
     const newComment = await this.commentRepository.create({
@@ -43,7 +50,8 @@ export class AddComment {
           select: "username avatar",
         },
       })
-      .lean();
+      .lean()
+      .exec();
 
     return populatedPost as unknown as Post;
   }
