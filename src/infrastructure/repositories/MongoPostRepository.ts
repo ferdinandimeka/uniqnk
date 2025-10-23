@@ -186,11 +186,17 @@ export class MongoPostRepository implements PostRepository {
 
     // ✅ Re-fetch with populated comments & users
     const populatedPost = await PostModel.findById(postId)
-        .populate({
-            path: "comments",
-            populate: { path: "user", select: "username avatar" },
-        })
-        .lean();
+    //    .populate({
+    //         path: "comments",
+    //         match: { user: { $ne: null } }, // filter out comments without valid user
+    //         populate: {
+    //             path: "user",
+    //             match: { _id: { $ne: null } }, // filter out null users
+    //             select: "username avatar",
+    //         },
+    //     })
+
+    //     .lean();
 
     if (!populatedPost) {
         throw new Error("Failed to populate post after adding comment");
