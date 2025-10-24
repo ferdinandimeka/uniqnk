@@ -8,15 +8,19 @@ export interface CommentRepository {
   }): Promise<IComment>;
   
   replyToComment(
-    parentCommentId: string,
+    commentId: string,
     userId: string,
     postId: string,
     content: string
-  ): Promise<IComment>;
+  ): Promise<IComment | null>;
 
   findById(id: string): Promise<IComment | null>;
 
   findByPostId(postId: string): Promise<IComment[]>;
 
   deleteById(id: string): Promise<boolean>;
+
+  likeComment(commentId: string, userId: string): Promise<IComment | null>;
+
+  unlikeComment(commentId: string, userId: string): Promise<IComment | null>;
 }

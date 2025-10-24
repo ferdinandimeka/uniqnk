@@ -51,7 +51,7 @@ const postController = new PostController(
     removeComment,
     getRankedPosts,
     getAllPost,
-    getPostById
+    getPostById,
 );
 
 /**
@@ -254,7 +254,20 @@ router.get("/user/:userId", (req, res, next) => {
  *         schema:
  *           type: string
  *         description: Post ID
- *     responses:
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *               - userId
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 example: "60d5ec49f1c2b14b2c8b4567"
+ *     responses:  
  *       200:
  *         description: Post liked
  */
@@ -279,6 +292,19 @@ router.post("/:postId/like", async (req, res, next) => {
  *         schema:
  *           type: string
  *         description: Post ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - content
+ *               - userId
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 example: "60d5ec49f1c2b14b2c8b4567"
  *     responses:
  *       200:
  *         description: Post unliked
@@ -400,7 +426,7 @@ router.delete("/:postId/reaction", (req, res, next) => {
  *               userId:
  *                 type: string
  *                 example: "60d5ec49f1c2b14b2c8b4567"
- *     responses:
+ *     responses:  
  *       200:
  *         description: Comment successfully added
  *       400:

@@ -86,15 +86,15 @@ async execute(postId: string, userId: string, comment: string): Promise<Post | n
     content: comment,
   });
 
-  console.log("New Comment Created:", newComment);
-  console.log("Post Before Update:", post);
+  // console.log("New Comment Created:", newComment);
+  // console.log("Post Before Update:", post);
 
   // ✅ Normalize comments array to ObjectIds
   post.comments = post.comments.map((c: any) => {
     if (c._id) return c._id; // convert populated comment objects
     return new mongoose.Types.ObjectId(c);
   });
-  console.log("Normalized Comments:", post.comments);
+  // console.log("Normalized Comments:", post.comments);
 
   // ✅ Add the new comment to the comments array in MongoDB
   await PostModel.findByIdAndUpdate(

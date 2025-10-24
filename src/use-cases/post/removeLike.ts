@@ -5,12 +5,6 @@ export class RemoveLike {
     constructor(private postRepository: PostRepository) {}
 
     async execute(postId: string, userId: string): Promise<Post | null> {
-        const post = await this.postRepository.findById(postId);
-        if (!post) {
-            return null;
-        }
-
-        post.likes = post.likes.filter((like) => like.toString() !== userId.toString());
-        return await this.postRepository.update(post);
+       return this.postRepository.removeLike(postId, userId);
     }
 }

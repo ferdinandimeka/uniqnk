@@ -1,4 +1,5 @@
 import { Post } from "../entities/Post";
+import mongoose from "mongoose";
 
 export interface PostRepository {
     create(post: Post): Promise<Post>;

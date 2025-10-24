@@ -4,7 +4,7 @@ export class ReplyToCommentUseCase {
   constructor(private commentRepository: CommentRepository) {}
 
   async execute(
-    parentCommentId: string,
+    commentId: string,
     userId: string,
     postId: string,
     content: string
@@ -12,7 +12,7 @@ export class ReplyToCommentUseCase {
     if (!content) throw new Error("Reply content is required");
 
     return await this.commentRepository.replyToComment(
-      parentCommentId,
+      commentId,
       userId,
       postId,
       content

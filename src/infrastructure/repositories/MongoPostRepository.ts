@@ -20,7 +20,14 @@ export class MongoPostRepository implements PostRepository {
         const populatedPost = await PostModel.findById(id)
             .populate({
                 path: "comments",
-                populate: { path: "user", select: "username avatar" },
+                match: { parentComment: null },
+                populate: [
+                { path: "user", select: "username" },
+                {
+                    path: "replies",
+                    populate: { path: "user", select: "username" }
+                },
+                ],
             })
             .lean(); // returns plain JS object, no need for `toPost`
 
@@ -58,6 +65,18 @@ export class MongoPostRepository implements PostRepository {
     async delete(id: string): Promise<void> {
         await PostModel.findByIdAndDelete(id);
     }
+
+    //  async likeComment(commentId: string, userId: string): Promise<IComment | null> {
+    //     const comment = await CommentModel.findById(commentId);
+    //     if (!comment) return null;
+    
+    //     if (!comment.likes.includes(new Types.ObjectId(userId))) {
+    //       comment.likes.push(new Types.ObjectId(userId));
+    //       await comment.save();
+    //     }
+    
+    //     return comment;
+    //   }
 
     async addLike(postId: string, userId: string): Promise<Post | null> {
         const post = await PostModel.findById(postId);
