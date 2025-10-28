@@ -8,7 +8,10 @@ import mongoose from "mongoose";
 export class MongoStoryRepository implements StoryRepository {
     
     async findAll(): Promise<any[]> {
-        const stories = await StoryModel.find();
+        const stories = await StoryModel.find()
+            .populate("user", "username profilePicture") // populate user fields
+            .sort({ createdAt: -1 }); // optional: newest first
+
         return stories.map((story) => this.toStory(story));
     }
 

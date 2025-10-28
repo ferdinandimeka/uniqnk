@@ -64,7 +64,7 @@ router.get("/", (req, res, next) => storyController.getAllStories(req, res, next
  *           schema:
  *             type: object
  *             properties:
- *               userId:
+ *               user:
  *                 type: string
  *               contentType:
  *                 type: string

@@ -29,6 +29,7 @@ export class MongoPostRepository implements PostRepository {
                 },
                 ],
             })
+            .sort({ createdAt: -1 }) // optional: newest first
             .lean(); // returns plain JS object, no need for `toPost`
 
         if (!populatedPost) {
@@ -116,35 +117,32 @@ export class MongoPostRepository implements PostRepository {
     //     return this.toPost(post);
     // }
 
-   async removeLike(postId: string, userId: string): Promise<Post | null> {
-  if (!mongoose.Types.ObjectId.isValid(postId)) {
-    throw new Error("Invalid post ID format");
-  }
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    throw new Error("Invalid user ID format");
-  }
+    async removeLike(postId: string, userId: string): Promise<Post | null> {
+        if (!mongoose.Types.ObjectId.isValid(postId)) {
+            throw new Error("Invalid post ID format");
+        }
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            throw new Error("Invalid user ID format");
+        }
 
-  const post = await PostModel.findById(postId);
-  if (!post) throw new Error("Post not found");
+        const post = await PostModel.findById(postId);
+        if (!post) throw new Error("Post not found");
 
-  const beforeCount = post.likes.length;
+        const beforeCount = post.likes.length;
 
-  // ✅ Safely filter by string value
-  const updatedLikes = post.likes.filter(
-    (like) => like.toString() !== userId.toString()
-  );
+        // ✅ Safely filter by string value
+        const updatedLikes = post.likes.filter(
+            (like) => like.toString() !== userId.toString()
+        );
 
-  post.set("likes", updatedLikes); // 🔥 ensures overwrite
-  await post.save({ validateBeforeSave: false });
+        post.set("likes", updatedLikes); // 🔥 ensures overwrite
+        await post.save({ validateBeforeSave: false });
 
-  console.log(`Removed ${beforeCount - post.likes.length} likes`);
+        console.log(`Removed ${beforeCount - post.likes.length} likes`);
 
-  return this.toPost(post);
-}
+        return this.toPost(post);
+    }
 
-
-
-    
     // async addComment(postId: string, commentId: string): Promise<Post | null> {
     //     const post = await PostModel.findById(postId);
     //     const commentObjectId = new mongoose.Types.ObjectId(commentId);
