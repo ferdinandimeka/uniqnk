@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 interface IStory extends Document {
     user: Types.ObjectId;
     contentType: "image" | "video" | "text";
-    contentUrl: string;
+    contentUrl?: string;
     text?: string;
     backgroundColor?: string;
     createdAt: Date;
@@ -29,7 +29,7 @@ const StorySchema = new Schema<IStory>({
     },
     contentUrl: {
         type: String,
-        required: true
+        // required: true
     },
     text: {
         type: String,
