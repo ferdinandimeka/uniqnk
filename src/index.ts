@@ -13,6 +13,9 @@ import { commentRoutes } from "./interface/routes/commentRoute";
 import "./jobs/cleanup"; // Import the cleanup job
 import cors from 'cors';
 import dotenv from "dotenv";
+import { initializeSocketIO } from "./socket";
+import { Server } from "socket.io";
+import http from "http";
 dotenv.config();
 
 const limiter = rateLimit({
@@ -41,11 +44,9 @@ mongoose
 
 const app = express();
 
-// const allowedOrigins = [
-//   'http://127.0.0.1:3001',
-//   'http://localhost:3001', 
-//   'http://localhost:3000'
-// ];
+const allowedOrigins = [
+ "*"
+];
 
 // // Use the cors middleware before any route handlers
 // app.use(
@@ -84,6 +85,22 @@ app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/stories", storyRoutes)
 app.use("/api/v1/posts", postRoutes)
 app.use("/api/v1/comments", commentRoutes)
+
+// Create HTTP server
+const server = http.createServer(app);
+
+// Initialize Socket.IO with proper CORS
+const io = new Server(server, {
+  cors: {
+    origin: allowedOrigins,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+  transports: ["polling", "websocket"],
+});
+
+initializeSocketIO(io);
+app.set("io", io);
 
 app.use(express.static("public"));
 app.use((err: any, req: any, res: any, next: any) => errorHandler(err, req, res, next));
