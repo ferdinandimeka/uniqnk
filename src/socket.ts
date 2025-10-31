@@ -147,7 +147,13 @@ const initializeSocketIO = (io: Server) => {
           "4ac066d21a6caaade20466bae747cdf85f774f6a47bc50cb73df18d606228c4a9f5640bd50e0a5b42c4829a289b0ea12958aa07ba4812d291e47461d57968132"
       ) as { _id: string };
 
-      const user = await UserModel.findById(decoded._id).select("-password");
+      const user = await UserModel.findById(decoded._id).select("-password") as unknown as {
+            _id: string;
+            username: string;
+            email?: string;
+            profilePicture?: string;
+        };
+
       if (!user) throw new ApiError(401, "Unauthorized handshake. Invalid token.");
 
       // ✅ Explicitly cast `_id` to string when creating the socket user
