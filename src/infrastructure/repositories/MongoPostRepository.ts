@@ -7,9 +7,16 @@ import mongoose from "mongoose"
 
 export class MongoPostRepository implements PostRepository {
     async findAll(): Promise<Post[]> {
-        const posts = await PostModel.find();
+        const posts = await PostModel.find()
+            .populate({
+            path: "user",
+            select: "fullName username profilePicture location", // select only needed fields
+            })
+            .sort({ createdAt: -1 }); // optional: newest first
+
         return posts.map(post => this.toPost(post));
     }
+
 
     async findById(id: string): Promise<Post | null> {
         if (!mongoose.Types.ObjectId.isValid(id)) {
