@@ -1,6 +1,7 @@
 import { ChatRepository } from "../../domain/interfaces/chatRepository";
 import { Chat } from "../../domain/entities/Chat";
 import { ChatModel } from "../models/ChatModel";
+import { ChatMessageModel } from "../models/MessageModel";
 import mongoose from "mongoose";
 
 export class MongoChatRepository implements ChatRepository {
@@ -54,6 +55,7 @@ export class MongoChatRepository implements ChatRepository {
   async sendMessage(
     chatId: string,
     sender: string,
+    receiver: string,
     text?: string,
     mediaUrls?: string[]
   ): Promise<Chat | null> {
@@ -61,19 +63,21 @@ export class MongoChatRepository implements ChatRepository {
     if (!chat) return null;
 
     // append new message
-    const newMessage = {
+    const newMessage = await ChatMessageModel.create({
+      chatId,
       sender,
+      receiver,
       text,
       mediaUrls,
       isRead: false,
-      createdAt: new Date(),
-    };
+      // createdAt: new Date(),
+    });
 
     // if using embedded messages (not separate collection)
     const updatedChat = await ChatModel.findByIdAndUpdate(
       chatId,
       {
-        $push: { lastMessage: newMessage },
+        $push: { lastMessage: newMessage._id },
         $set: { updatedAt: new Date() },
       },
       { new: true }

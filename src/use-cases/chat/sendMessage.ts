@@ -5,11 +5,13 @@ export class SendMessage {
 
   async execute({
     chatId,
+    receiver,
     sender,
     text,
     mediaUrls,
   }: {
     chatId: string;
+    receiver: string;
     sender: string;
     text?: string;
     mediaUrls?: string[];
@@ -18,6 +20,6 @@ export class SendMessage {
     if (!text && (!mediaUrls || mediaUrls.length === 0))
       throw new Error("Message must contain either text or media.");
 
-    return await this.chatRepository.sendMessage(chatId, sender, text, mediaUrls);
+    return await this.chatRepository.sendMessage(chatId, receiver, sender, text, mediaUrls);
   }
 }
