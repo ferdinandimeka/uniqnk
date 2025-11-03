@@ -7,6 +7,7 @@ import { GetMessages } from "../../use-cases/chat/getMessages";
 import { GetUserChats } from "../../use-cases/chat/getUserChats";
 import { MarkMessageAsRead } from "../../use-cases/chat/markMessageAsRead";
 import { SendMessage } from "../../use-cases/chat/sendMessage";
+import { GetAllChats } from "../../use-cases/chat/getAllChat";
 
 const router = Router();
 
@@ -17,8 +18,9 @@ const getMessage = new GetMessages(chatRepository);
 const getuserChats = new GetUserChats(chatRepository);
 const markMessageAsRead = new MarkMessageAsRead(chatRepository);
 const sendMessage = new SendMessage(chatRepository);
+const getAllChats = new GetAllChats(chatRepository);
 
-const chatController = new ChatController(createChat, deleteChat, getMessage, getuserChats, markMessageAsRead, sendMessage)
+const chatController = new ChatController(createChat, deleteChat, getMessage, getuserChats, markMessageAsRead, sendMessage, getAllChats)
 
 /**
  * @swagger
@@ -26,6 +28,18 @@ const chatController = new ChatController(createChat, deleteChat, getMessage, ge
  *   name: Chat
  *   description: Chat management APIs
  */
+
+/**
+ * @swagger
+ * /api/v1/chat:
+ *   get:
+ *     summary: Get all chats
+ *     tags: [Chats]
+ *     responses:
+ *       200:
+ *         description: List of Chats
+ */
+router.get("/", (req, res, next) => chatController.getAllChat(req, res, next));
 
 /**
  * @swagger

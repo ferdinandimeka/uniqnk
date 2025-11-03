@@ -5,6 +5,7 @@ import { CreateChat } from "../../use-cases/chat/createChat";
 import { DeleteChat } from "../../use-cases/chat/deleteChat";
 import { GetMessages } from "../../use-cases/chat/getMessages";
 import { GetUserChats } from "../../use-cases/chat/getUserChats";
+import { GetAllChats } from "../../use-cases/chat/getAllChat";
 import { MarkMessageAsRead } from "../../use-cases/chat/markMessageAsRead";
 import { SendMessage } from "../../use-cases/chat/sendMessage";
 import { emitSocketEvent } from "../../socket"; // ✅ Import Socket helper
@@ -20,8 +21,16 @@ export class ChatController {
         private getMessagesUseCase: GetMessages,
         private getUserChatUseCase: GetUserChats,
         private markMessageAsReadUseCase: MarkMessageAsRead,
-        private sendMessageUseCase: SendMessage
+        private sendMessageUseCase: SendMessage,
+        private getAllChats: GetAllChats
     ) {}
+  /** Get all chat */
+  async getAllChat(req: Request, res: Response, next: NextFunction): Promise<void> {
+    const chats = await this.getAllChats.execute();
+      res.json(chats);
+      next();
+  }
+
   /** ✅ Create or get existing chat between users */
   async createChat(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {

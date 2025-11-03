@@ -3,9 +3,9 @@ import { Types } from "mongoose";
 
 export interface ChatRepository {
   /**
-   * Find a chat by ID
+   * Get all chats
    */
-//   findById(id: string): Promise<Chat | null>;
+  getAllChats(): Promise<Chat | null>;
 
   /**
    * Find all chats that a user participates in
