@@ -84,6 +84,9 @@ router.post("/create", async (req, res, next) => {
  *               sender:
  *                 type: string
  *                 example: "672ebd5c29b4de982ae7b53f"
+ *               receiver:
+ *                 type: string
+ *                 example: "672ebd5c29b4de982ae7b53f"
  *               text:
  *                 type: string
  *                 example: "Hey, how are you?"
