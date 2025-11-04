@@ -1,9 +1,9 @@
 import express from "express";
 import mongoose from 'mongoose';
-import { rateLimit } from "express-rate-limit"
+import rateLimit from "express-rate-limit"
 import helmet from "helmet"
 import { logger } from "./infrastructure/logger";
-import { setupSwagger } from "../swagger";
+import { setupSwagger } from "./swagger";
 import { errorHandler } from "./interface/middleware/errorHandler";
 import { userRoutes } from "./interface/routes/userRoutes";
 import { authRoutes } from "./interface/routes/authRoute";
