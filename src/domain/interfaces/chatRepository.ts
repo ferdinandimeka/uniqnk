@@ -40,5 +40,5 @@ export interface ChatRepository {
   /**
    * Delete a specific message
    */
-  deleteMessage(chatId: string, messageIndex: number): Promise<Chat | null>;
+  deleteMessage(chatId: string, messageId: string): Promise<boolean>;
 }

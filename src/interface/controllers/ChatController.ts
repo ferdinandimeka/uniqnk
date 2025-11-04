@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { MongoChatRepository } from "../../infrastructure/repositories/MongoChatRepository";
 import { CreateChat } from "../../use-cases/chat/createChat";
 import { DeleteChat } from "../../use-cases/chat/deleteChat";
+import { DeleteChatMessage } from "../../use-cases/chat/deleteChatMessage";
 import { GetMessages } from "../../use-cases/chat/getMessages";
 import { GetUserChats } from "../../use-cases/chat/getUserChats";
 import { GetAllChats } from "../../use-cases/chat/getAllChat";
@@ -11,13 +12,12 @@ import { SendMessage } from "../../use-cases/chat/sendMessage";
 import { emitSocketEvent } from "../../socket"; // ✅ Import Socket helper
 import { ChatEventEnum } from "../../constants"; // ✅ Socket event names
 
-const chatRepository = new MongoChatRepository();
-
 export class ChatController {
     constructor(
         // private addCommentUseCase,
         private createChatUseCase: CreateChat, 
         private deleteChatUseCase: DeleteChat,
+        private deleteChatMessageUseCase: DeleteChatMessage,
         private getMessagesUseCase: GetMessages,
         private getUserChatUseCase: GetUserChats,
         private markMessageAsReadUseCase: MarkMessageAsRead,
@@ -167,21 +167,32 @@ export class ChatController {
   /** ✅ Delete a message */
   async deleteMessage(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { messageId } = req.params;
+      const { chatId, messageId } = req.params;
 
-      if (!messageId) {
-        return res.status(400).json({ message: "Message ID is required" });
+      if (!chatId || !messageId) {
+        return res.status(400).json({ message: "Chat ID and Message ID are required" });
       }
 
-      await chatRepository.deleteMessage((messageId));
+      const success = await this.deleteChatMessageUseCase.execute(chatId, messageId);
 
-      // 🎯 Notify users that message was deleted
-      emitSocketEvent(req, messageId, ChatEventEnum.MESSAGE_DELETED_EVENT, { messageId });
+      if (!success) {
+        return res.status(404).json({ success: false, message: "Message not found or already deleted" });
+      }
 
-      return res.status(200).json({ success: true, message: "Message deleted successfully" });
+      // 🎯 Notify both sender and receiver that the message was deleted
+      emitSocketEvent(req, chatId, ChatEventEnum.MESSAGE_DELETED_EVENT, { messageId });
+
+      return res.status(200).json({
+        success: true,
+        message: "Message deleted successfully",
+      });
     } catch (error: any) {
       console.error("Error deleting message:", error);
-      return res.status(500).json({ success: false, message: error.message });
+      return res.status(500).json({
+        success: false,
+        message: error.message || "Internal Server Error",
+      });
     }
   }
+
 }

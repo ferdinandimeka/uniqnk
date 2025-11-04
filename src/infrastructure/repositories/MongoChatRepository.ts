@@ -1,8 +1,8 @@
 import { ChatRepository } from "../../domain/interfaces/chatRepository";
 import { Chat } from "../../domain/entities/Chat";
 import { ChatModel } from "../models/ChatModel";
-import { ChatMessageModel } from "../models/MessageModel";
-import mongoose from "mongoose";
+import { ChatMessageModel, IChatMessage } from "../models/MessageModel";
+import mongoose, { Types } from "mongoose";
 
 export class MongoChatRepository implements ChatRepository {
   /**
@@ -122,13 +122,39 @@ export class MongoChatRepository implements ChatRepository {
     await ChatModel.findByIdAndDelete(chatId);
   }
 
-  /**
-   * Delete a specific message
+ /**
+   * Delete a specific message in a chat
    */
-  async deleteMessage(chatId: string): Promise<Chat | null> {
-    const chatDoc = await ChatModel.findByIdAndDelete(chatId);
-    if (!chatDoc) return null;
+  async deleteMessage(chatId: string, messageId: string): Promise<boolean> {
+    // Validate IDs
+    if (!Types.ObjectId.isValid(chatId) || !Types.ObjectId.isValid(messageId)) {
+      throw new Error("Invalid chatId or messageId");
+    }
 
-    return chatDoc ? this.toDomain(chatDoc) : null;
+    // Find and delete the message
+    const deletedMessage = await ChatMessageModel.findOneAndDelete({
+      _id: messageId,
+      chatId,
+    });
+
+    if (!deletedMessage) {
+      return false; // message not found or doesn't belong to the chat
+    }
+
+    // Check if the deleted message was the last message in the chat
+    const chat = await ChatModel.findById(chatId);
+    if (!chat) return false;
+    if (chat?.lastMessage?.toString() === messageId) {
+      // Get the most recent remaining message
+      const latestMessage: IChatMessage | null = await ChatMessageModel.findOne({ chatId })
+        .sort({ createdAt: -1 })
+        .select("_id");
+
+      // Update chat with new lastMessage (or null if no messages left)
+      chat.lastMessage = latestMessage ? (latestMessage._id as Types.ObjectId) : undefined;
+      await chat.save();
+    }
+
+    return true;
   }
 }
