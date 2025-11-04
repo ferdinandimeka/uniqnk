@@ -1,4 +1,5 @@
 import { Chat } from "../entities/Chat";
+import { ChatMessage } from "../entities/ChatMessage";
 import { Types } from "mongoose";
 
 export interface ChatRepository {
@@ -26,6 +27,11 @@ export interface ChatRepository {
    * Get all messages from a chat
    */
   getMessages(chatId: string): Promise<Chat | null>;
+
+   /**
+   * Get all messages by chat
+   */
+  getAllMessage(chatId: string): Promise<ChatMessage[] | []>;
 
   /**
    * Mark a specific message as read

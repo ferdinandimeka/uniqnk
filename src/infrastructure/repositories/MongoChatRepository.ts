@@ -3,20 +3,54 @@ import { Chat } from "../../domain/entities/Chat";
 import { ChatModel } from "../models/ChatModel";
 import { ChatMessageModel, IChatMessage } from "../models/MessageModel";
 import mongoose, { Types } from "mongoose";
+import { ChatMessage } from "../../domain/entities/ChatMessage"
 
 export class MongoChatRepository implements ChatRepository {
   /**
    * Convert a Mongoose Chat document into a domain Chat entity
    */
+  // private toDomain(chatDoc: any): Chat {
+  //   return new Chat(
+  //     chatDoc._id.toString(),
+  //     chatDoc.participants.map((p: mongoose.Types.ObjectId) => p.toString()),
+  //     chatDoc.lastMessage || [],
+  //     chatDoc.createdAt,
+  //     chatDoc.updatedAt
+  //   );
+  // }
+
   private toDomain(chatDoc: any): Chat {
-    return new Chat(
+  let lastMessages = [];
+
+  if (chatDoc.lastMessage) {
+    // If it's a single object (from populate), wrap it in an array
+    if (!Array.isArray(chatDoc.lastMessage)) {
+      lastMessages = [chatDoc.lastMessage];
+    } else {
+      lastMessages = chatDoc.lastMessage;
+    }
+
+    // Transform each message into the structure expected by Chat
+    lastMessages = lastMessages.map((msg: any) => ({
+      sender: msg.sender?.toString(),
+      text: msg.text,
+      mediaUrls: msg.mediaUrls || [],
+      isRead: msg.isRead,
+      createdAt: msg.createdAt,
+    }));
+  }
+      // Return a Chat class instance, not a plain object
+    const chat = new Chat(
       chatDoc._id.toString(),
-      chatDoc.participants.map((p: mongoose.Types.ObjectId) => p.toString()),
-      chatDoc.lastMessage || [],
+      chatDoc.participants?.map((p: any) => p.toString()) || [],
+      lastMessages,
       chatDoc.createdAt,
       chatDoc.updatedAt
     );
+
+    return chat;
   }
+
 
   /**
    * Find chat by ID
@@ -30,7 +64,7 @@ export class MongoChatRepository implements ChatRepository {
    * Get all chats
    */
   async getAllChats(): Promise<Chat[]> {
-    const chatDocs = await ChatModel.find();
+    const chatDocs = await ChatModel.find().populate("lastMessage");
     return chatDocs.map((doc) => this.toDomain(doc));
   }
 
@@ -68,6 +102,8 @@ export class MongoChatRepository implements ChatRepository {
     mediaUrls?: string[]
   ): Promise<Chat | null> {
     const chat = await ChatModel.findById(chatId);
+    console.log("lastMessage type:", chat?.lastMessage);
+
     if (!chat) return null;
 
     // append new message
@@ -81,25 +117,67 @@ export class MongoChatRepository implements ChatRepository {
       // createdAt: new Date(),
     });
 
-    // if using embedded messages (not separate collection)
-    const updatedChat = await ChatModel.findByIdAndUpdate(
-      chatId,
-      {
-        $set: { lastMessage: newMessage._id, updatedAt: new Date() }
-      },
-      { new: true }
-    );
+    // Update chat with new lastMessage
+  await ChatModel.findByIdAndUpdate(chatId, {
+    $set: { lastMessage: newMessage._id, updatedAt: new Date() },
+  });
+
+     // ✅ Populate lastMessage before returning
+    const updatedChat = await ChatModel.findById(chatId).populate("lastMessage");
+
+    console.log("Populated chat:", JSON.stringify(updatedChat, null, 2));
 
     return updatedChat ? this.toDomain(updatedChat) : null;
   }
 
   /**
-   * Retrieve messages of a chat
+   * Retrieve message of a chat
    */
   async getMessages(chatId: string): Promise<Chat | null> {
     const chatDoc = await ChatModel.findById(chatId).populate("lastMessage").exec();
     return chatDoc ? this.toDomain(chatDoc) : null;
   }
+
+  // async getAllMessage(chatId: string): Promise<Chat[] | []> {
+  //   const chatDocs =  await ChatMessageModel.find({ chatId }).sort({ createdAt: 1 });
+  //   return chatDocs.map((doc) => this.toDomain(doc));
+  // }
+
+  async getAllMessage(chatId: string): Promise<ChatMessage[]> {
+    // Fetch all messages belonging to a chat
+    const messageDocs = await ChatMessageModel.find({ chatId })
+      .sort({ createdAt: 1 }) // oldest first
+      .populate("sender receiver", "name avatar"); // optional: populate user info
+
+    // Return raw message objects or map them to a Message domain entity
+    // return messageDocs.map((doc) => this.toDomain(doc));
+    return messageDocs.map((msg) => {
+      // safely extract senderId
+      const senderId =
+        typeof msg.sender === "object" && msg.sender !== null && "_id" in msg.sender
+          ? (msg.sender._id as unknown as Types.ObjectId).toString()
+          : (msg.sender as unknown as Types.ObjectId)?.toString?.() ?? "";
+
+      // safely extract receiverId (can be undefined)
+      const receiverId =
+        typeof msg.receiver === "object" && msg.receiver !== null && "_id" in msg.receiver
+          ? (msg.receiver._id as unknown as Types.ObjectId).toString()
+          : (msg.receiver as unknown as Types.ObjectId)?.toString?.() ?? undefined;
+
+      return new ChatMessage(
+        msg._id.toString(),
+        msg.chatId.toString(),
+        senderId,
+        receiverId,
+        msg.text,
+        msg.mediaUrls,
+        msg.isRead,
+        msg.createdAt,
+        msg.updatedAt
+      );
+    });
+  }
+
 
   /**
    * Mark message as read

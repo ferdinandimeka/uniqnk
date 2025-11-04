@@ -9,6 +9,7 @@ import { GetUserChats } from "../../use-cases/chat/getUserChats";
 import { MarkMessageAsRead } from "../../use-cases/chat/markMessageAsRead";
 import { SendMessage } from "../../use-cases/chat/sendMessage";
 import { GetAllChats } from "../../use-cases/chat/getAllChat";
+import { GetAllMessages } from "../../use-cases/chat/getAllMessages";
 
 const router = Router();
 
@@ -21,8 +22,9 @@ const getuserChats = new GetUserChats(chatRepository);
 const markMessageAsRead = new MarkMessageAsRead(chatRepository);
 const sendMessage = new SendMessage(chatRepository);
 const getAllChats = new GetAllChats(chatRepository);
+const getAllMessages = new GetAllMessages(chatRepository);
 
-const chatController = new ChatController(createChat, deleteChat, deleteChatMessage, getMessage, getuserChats, markMessageAsRead, sendMessage, getAllChats)
+const chatController = new ChatController(createChat, deleteChat, deleteChatMessage, getMessage, getuserChats, markMessageAsRead, sendMessage, getAllChats, getAllMessages)
 
 /**
  * @swagger
@@ -175,6 +177,33 @@ router.get("/user/:userId", async (req, res, next) => {
 router.get("/:chatId/messages",async (req, res, next) => {
     try {
         await chatController.getMessages(req, res, next);
+    } catch (err) {
+        next(err);
+    }
+});
+
+/**
+ * @swagger
+ * /api/v1/chat/{chatId}/messages:
+ *   get:
+ *     summary: Get all messages by chat
+ *     tags: [Chat]
+ *     parameters:
+ *       - in: path
+ *         name: chatId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the chat
+ *     responses:
+ *       200:
+ *         description: Messages retrieved successfully
+ *       404:
+ *         description: No messages found
+ */
+router.get("/:chatId/all-messages",async (req, res, next) => {
+    try {
+        await chatController.getAllMessages(req, res, next);
     } catch (err) {
         next(err);
     }

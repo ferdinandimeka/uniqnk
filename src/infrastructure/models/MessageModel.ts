@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IChatMessage extends Document {
+  _id: Types.ObjectId;
   chatId: Types.ObjectId; // ID of the chat (group or private)
   sender: Types.ObjectId; // User who sent the message
   receiver?: Types.ObjectId; // Optional: for 1-on-1 chats

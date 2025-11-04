@@ -7,6 +7,7 @@ import { DeleteChatMessage } from "../../use-cases/chat/deleteChatMessage";
 import { GetMessages } from "../../use-cases/chat/getMessages";
 import { GetUserChats } from "../../use-cases/chat/getUserChats";
 import { GetAllChats } from "../../use-cases/chat/getAllChat";
+import { GetAllMessages } from "../../use-cases/chat/getAllMessages";
 import { MarkMessageAsRead } from "../../use-cases/chat/markMessageAsRead";
 import { SendMessage } from "../../use-cases/chat/sendMessage";
 import { emitSocketEvent } from "../../socket"; // ✅ Import Socket helper
@@ -22,7 +23,8 @@ export class ChatController {
         private getUserChatUseCase: GetUserChats,
         private markMessageAsReadUseCase: MarkMessageAsRead,
         private sendMessageUseCase: SendMessage,
-        private getAllChats: GetAllChats
+        private getAllChats: GetAllChats,
+        private getAllMessagesUseCase: GetAllMessages,
     ) {}
   /** Get all chat */
   async getAllChat(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -92,6 +94,24 @@ export class ChatController {
       }
 
       const messages = await this.getMessagesUseCase.execute(chatId);
+
+      return res.status(200).json({ success: true, data: messages });
+    } catch (error: any) {
+      console.error("Error fetching messages:", error);
+      return res.status(500).json({ success: false, message: error.message });
+    }
+  }
+
+   /** ✅ Get all messages in a chat */
+  async getAllMessages(req: Request, res: Response, next: NextFunction): Promise<Response> {
+    try {
+      const { chatId } = req.params;
+
+      if (!chatId) {
+        return res.status(400).json({ message: "Chat ID is required" });
+      }
+
+      const messages = await this.getAllMessagesUseCase.execute(chatId);
 
       return res.status(200).json({ success: true, data: messages });
     } catch (error: any) {
