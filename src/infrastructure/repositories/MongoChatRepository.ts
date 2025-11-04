@@ -29,9 +29,9 @@ export class MongoChatRepository implements ChatRepository {
    /**
    * Get all chats
    */
-  async getAllChats(): Promise<Chat | null> {
-    const chatDoc = await ChatModel.find();
-    return chatDoc ? this.toDomain(chatDoc) : null
+  async getAllChats(): Promise<Chat[]> {
+    const chatDocs = await ChatModel.find();
+    return chatDocs.map((doc) => this.toDomain(doc));
   }
 
   /**

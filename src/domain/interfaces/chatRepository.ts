@@ -5,7 +5,7 @@ export interface ChatRepository {
   /**
    * Get all chats
    */
-  getAllChats(): Promise<Chat | null>;
+  getAllChats(): Promise<Chat[]>;
 
   /**
    * Find all chats that a user participates in
