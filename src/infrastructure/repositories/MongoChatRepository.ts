@@ -85,8 +85,7 @@ export class MongoChatRepository implements ChatRepository {
     const updatedChat = await ChatModel.findByIdAndUpdate(
       chatId,
       {
-        $push: { lastMessage: newMessage._id },
-        $set: { updatedAt: new Date() },
+        $set: { lastMessage: newMessage._id, updatedAt: new Date() }
       },
       { new: true }
     );
