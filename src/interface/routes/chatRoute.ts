@@ -3,6 +3,7 @@ import { MongoChatRepository } from "../../infrastructure/repositories/MongoChat
 import { ChatController } from "../controllers/ChatController";
 import { CreateChat } from "../../use-cases/chat/createChat";
 import { DeleteChat } from "../../use-cases/chat/deleteChat";
+import { DeleteChatMessage } from "../../use-cases/chat/deleteChatMessage";
 import { GetMessages } from "../../use-cases/chat/getMessages";
 import { GetUserChats } from "../../use-cases/chat/getUserChats";
 import { MarkMessageAsRead } from "../../use-cases/chat/markMessageAsRead";
@@ -14,13 +15,14 @@ const router = Router();
 const chatRepository = new MongoChatRepository();
 const createChat = new CreateChat(chatRepository);
 const deleteChat = new DeleteChat(chatRepository);
+const deleteChatMessage = new DeleteChatMessage(chatRepository);
 const getMessage = new GetMessages(chatRepository);
 const getuserChats = new GetUserChats(chatRepository);
 const markMessageAsRead = new MarkMessageAsRead(chatRepository);
 const sendMessage = new SendMessage(chatRepository);
 const getAllChats = new GetAllChats(chatRepository);
 
-const chatController = new ChatController(createChat, deleteChat, getMessage, getuserChats, markMessageAsRead, sendMessage, getAllChats)
+const chatController = new ChatController(createChat, deleteChat, deleteChatMessage, getMessage, getuserChats, markMessageAsRead, sendMessage, getAllChats)
 
 /**
  * @swagger
@@ -34,7 +36,7 @@ const chatController = new ChatController(createChat, deleteChat, getMessage, ge
  * /api/v1/chat:
  *   get:
  *     summary: Get all chats
- *     tags: [Chats]
+ *     tags: [Chat]
  *     responses:
  *       200:
  *         description: List of Chats
@@ -195,7 +197,7 @@ router.get("/:chatId/messages",async (req, res, next) => {
  *       200:
  *         description: Message marked as read
  */
-router.patch("/read/:messageId", async (req, res, next) => {
+router.put("/read/:messageId", async (req, res, next) => {
     try {
         await chatController.markMessageAsRead(req, res, next);
     } catch (err) {
