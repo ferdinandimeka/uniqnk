@@ -184,7 +184,7 @@ router.get("/:chatId/messages",async (req, res, next) => {
 
 /**
  * @swagger
- * /api/v1/chat/{chatId}/messages:
+ * /api/v1/chat/{chatId}/all-messages:
  *   get:
  *     summary: Get all messages by chat
  *     tags: [Chat]
