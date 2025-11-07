@@ -1,13 +1,13 @@
-import { Router } from "express"
-import { MongoUserRepository } from "../../infrastructure/repositories/MongoUserRepository" 
-// import { InMemoryUserRepository } from "../../infrastructure/repositories/InMemoryUserRepository" 
-import { GetAllUsers } from "../../use-cases/user/getAllUsers"
-import { UserController } from "../controllers/UserController"
-import { CreateUser } from "../../use-cases/user/createUsers"
-import { UpdateUser } from "../../use-cases/user/updateUser"
-import { DeleteUser } from "../../use-cases/user/deleteUser"
-import { GetUserById } from "../../use-cases/user/getUserById"
-// import { authenticateToken } from "../middleware/auth";
+import { Router } from "express";
+import { MongoUserRepository } from "../../infrastructure/repositories/MongoUserRepository";
+import { GetAllUsers } from "../../use-cases/user/getAllUsers";
+import { UserController } from "../controllers/UserController";
+import { CreateUser } from "../../use-cases/user/createUsers";
+import { UpdateUser } from "../../use-cases/user/updateUser";
+import { DeleteUser } from "../../use-cases/user/deleteUser";
+import { GetUserById } from "../../use-cases/user/getUserById";
+import { FollowUser } from "../../use-cases/user/follow";
+import { UnfollowUser } from "../../use-cases/user/unfollow";
 
 const router = Router();
 
@@ -17,7 +17,18 @@ const createUser = new CreateUser(userRepository);
 const getUserById = new GetUserById(userRepository);
 const updateUser = new UpdateUser(userRepository);
 const deleteUser = new DeleteUser(userRepository);
-const userController = new UserController(getAllUsers, createUser, getUserById, updateUser, deleteUser);
+const followUser = new FollowUser(userRepository);
+const unfollowUser = new UnfollowUser(userRepository);
+
+const userController = new UserController(
+  getAllUsers,
+  createUser,
+  getUserById,
+  updateUser,
+  deleteUser,
+  unfollowUser,
+  followUser
+);
 
 /**
  * @swagger
@@ -39,7 +50,7 @@ const userController = new UserController(getAllUsers, createUser, getUserById, 
 router.get("/", (req, res, next) => userController.getAll(req, res, next));
 
 /**
-* @swagger
+ * @swagger
  * /api/v1/users/{id}:
  *   get:
  *     summary: Get a user by ID
@@ -57,71 +68,7 @@ router.get("/", (req, res, next) => userController.getAll(req, res, next));
  *       404:
  *         description: User not found
  */
-
 router.get("/:id", (req, res, next) => userController.getUserById(req, res, next));
-
-/**
- * @swagger
- * /api/v1/users/{id}:
- *   put:
- *     summary: Update a user by ID
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               fullName:
- *                 type: string
- *                 example: "Updated Name"
- *               username:
- *                 type: string
- *                 example: "updatedusername"
- *               email:
- *                 type: string
- *                 example: "updated@example.com"
- *               phone:
- *                 type: string
- *                 example: "08123456789"
- *     responses:
- *       200:
- *         description: User updated
- *       400:
- *         description: Invalid input
- *       404:
- *         description: User not found
- */
-router.put("/:id", (req, res, next) => userController.update(req, res, next));
-
-/**
- * @swagger
- * /api/v1/users/{id}:
- *   delete:
- *     summary: Delete a user by ID
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: User ID
- *     responses:
- *       200:
- *         description: User deleted
- *       404:
- *         description: User not found
- */
-router.delete("/:id", (req, res, next) => userController.delUser(req, res, next));
 
 /**
  * @swagger
@@ -184,6 +131,93 @@ router.delete("/:id", (req, res, next) => userController.delUser(req, res, next)
  *       404:
  *         description: User not found
  */
-router.put("/:id", (req, res, next) => userController.create(req, res, next));
+router.put("/:id", (req, res, next) => userController.update(req, res, next));
+
+/**
+ * @swagger
+ * /api/v1/users/{id}:
+ *   delete:
+ *     summary: Delete a user by ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User deleted
+ *       404:
+ *         description: User not found
+ */
+router.delete("/:id", (req, res, next) => userController.delUser(req, res, next));
+
+/**
+ * @swagger
+ * /api/v1/users/{id}/follow:
+ *   post:
+ *     summary: Follow another user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user to follow
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               followerId:
+ *                 type: string
+ *                 example: "672a33d9a8d9a812c827f1b1"
+ *     responses:
+ *       200:
+ *         description: User followed successfully
+ *       400:
+ *         description: Invalid request or already following
+ *       404:
+ *         description: User not found
+ */
+router.post("/:id/follow", (req, res, next) => userController.follow(req, res, next));
+
+/**
+ * @swagger
+ * /api/v1/users/{id}/unfollow:
+ *   post:
+ *     summary: Unfollow another user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the user to unfollow
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               followerId:
+ *                 type: string
+ *                 example: "672a33d9a8d9a812c827f1b1"
+ *     responses:
+ *       200:
+ *         description: User unfollowed successfully
+ *       400:
+ *         description: Invalid request or not following
+ *       404:
+ *         description: User not found
+ */
+router.post("/:id/unfollow", (req, res, next) => userController.unfollow(req, res, next));
 
 export { router as userRoutes };

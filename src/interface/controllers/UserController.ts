@@ -5,14 +5,25 @@ import { NextFunction, Request, Response } from 'express'
 // import { DIContainer } from '../../infrastructure/DIContainer';
 import { GetAllUsers } from '../../use-cases/user/getAllUsers';
 import { DeleteUser } from '../../use-cases/user/deleteUser';
+import { FollowUser } from '../../use-cases/user/follow';
+import { UnfollowUser } from '../../use-cases/user/unfollow';
 import { validate } from "class-validator";
 import { plainToInstance } from "class-transformer";
 // import { CreateUserDto } from "../dto/UserResponseDto";
 import { UserResponseDto } from "../dto/CreateUserDto";
 import { PostModel } from "../../infrastructure/models/PostModel"; // adjust relative path if needed
+// import { UserRepository } from "../../domain/interfaces/userRepository";
 
 export class UserController {
-    constructor(private getAllUsers: GetAllUsers, private createUser: CreateUser, private getUserByid: GetUserById, private updateUser: UpdateUser, private deleteUser: DeleteUser) {}
+    constructor(
+        private getAllUsers: GetAllUsers,
+        private createUser: CreateUser,
+        private getUserByid: GetUserById,
+        private updateUser: UpdateUser,
+        private deleteUser: DeleteUser,
+        private unfollowUser: UnfollowUser,
+        private followUser: FollowUser
+    ) {}
     // private getAllUsers =  DIContainer.getGetAllUsersUseCase(); 
 
     async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -104,5 +115,29 @@ export class UserController {
         await this.deleteUser.execute(userId);
         res.status(204).send();
         next();
+    }
+
+    async follow(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.params.id;
+            const targetUserId = req.body.targetUserId;
+
+            await this.followUser.execute(userId, targetUserId);
+            res.status(200).json({ message: 'Successfully followed the user.' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async unfollow(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.params.id;
+            const targetUserId = req.body.targetUserId;
+
+            await this.unfollowUser.execute(userId, targetUserId);
+            res.status(200).json({ message: 'Successfully unfollowed the user.' });
+        } catch (error) {
+            next(error);
+        }
     }
 }

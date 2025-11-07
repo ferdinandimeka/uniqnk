@@ -65,6 +65,24 @@ export class MongoUserRepository implements UserRepository {
         await UserModel.findByIdAndDelete(id);
     }
 
+    async follow(userId: string, targetUserId: string): Promise<void> {
+        await UserModel.findByIdAndUpdate(userId, {
+            $addToSet: { following: targetUserId }
+        });
+        await UserModel.findByIdAndUpdate(targetUserId, {
+            $addToSet: { followers: userId }
+        });
+    }
+
+    async unfollow(userId: string, targetUserId: string): Promise<void> {
+        await UserModel.findByIdAndUpdate(userId, {
+            $pull: { following: targetUserId }
+        });
+        await UserModel.findByIdAndUpdate(targetUserId, {
+            $pull: { followers: userId }
+        });
+    }
+
     private toUser(userDoc: any): User {
         const userObj = userDoc.toObject();
         return {

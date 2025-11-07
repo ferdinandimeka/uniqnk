@@ -6,4 +6,6 @@ export interface UserRepository {
     create(user: User, userId: string): Promise<User>;
     update(user: User): Promise<void>;
     delete(id: string): Promise<void>;
+    follow(userId: string, targetUserId: string): Promise<void>;
+    unfollow(userId: string, targetUserId: string): Promise<void>;
 }
