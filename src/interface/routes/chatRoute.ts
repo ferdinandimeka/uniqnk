@@ -261,11 +261,17 @@ router.delete("/:chatId", async (req, res, next) => {
 
 /**
  * @swagger
- * /api/v1/chat/message/{messageId}:
+ * /api/v1/chat/{chatId}/message/{messageId}:
  *   delete:
- *     summary: Delete a specific message
+ *     summary: Delete a specific message in a chat
  *     tags: [Chat]
  *     parameters:
+ *       - in: path
+ *         name: chatId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the chat containing the message
  *       - in: path
  *         name: messageId
  *         schema:
@@ -275,13 +281,18 @@ router.delete("/:chatId", async (req, res, next) => {
  *     responses:
  *       200:
  *         description: Message deleted successfully
+ *       404:
+ *         description: Message or chat not found
+ *       500:
+ *         description: Internal server error
  */
-router.delete("/message/:messageId", async (req, res, next) => {
-    try {
-        await chatController.deleteMessage(req, res, next);
-    } catch (err) {
-        next(err);
-    }
+router.delete("/:chatId/message/:messageId", async (req, res, next) => {
+  try {
+    await chatController.deleteMessage(req, res, next);
+  } catch (err) {
+    next(err);
+  }
 });
+
 
 export { router as chatRoutes };
