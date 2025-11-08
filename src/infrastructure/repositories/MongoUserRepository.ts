@@ -68,6 +68,7 @@ export class MongoUserRepository implements UserRepository {
     async follow(userId: string, targetUserId: string): Promise<void> {
         const user = await UserModel.findById(userId);
         const target = await UserModel.findById(targetUserId);
+        console.log("Following user:", userId, "to", targetUserId);
 
         if (!user || !target) {
             throw new Error("User or target user not found");

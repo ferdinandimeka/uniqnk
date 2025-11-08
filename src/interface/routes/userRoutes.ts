@@ -174,7 +174,7 @@ router.delete("/:id", (req, res, next) => userController.delUser(req, res, next)
  *           schema:
  *             type: object
  *             properties:
- *               followerId:
+ *               targetUserId:
  *                 type: string
  *                 example: "672a33d9a8d9a812c827f1b1"
  *     responses:
