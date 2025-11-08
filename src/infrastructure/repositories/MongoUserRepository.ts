@@ -29,7 +29,7 @@
 import { User } from "../../domain/entities/User";
 import { UserRepository } from "../../domain/interfaces/userRepository";
 import { UserModel } from "../models/UserModel";
-import mongoose from "mongoose"
+import mongoose, {Types} from "mongoose"
 
 export class MongoUserRepository implements UserRepository {
     async findAll(): Promise<User[]> {
@@ -66,22 +66,46 @@ export class MongoUserRepository implements UserRepository {
     }
 
     async follow(userId: string, targetUserId: string): Promise<void> {
-        await UserModel.findByIdAndUpdate(userId, {
-            $addToSet: { following: targetUserId }
-        });
-        await UserModel.findByIdAndUpdate(targetUserId, {
-            $addToSet: { followers: userId }
-        });
+        const user = await UserModel.findById(userId);
+        const target = await UserModel.findById(targetUserId);
+
+        if (!user || !target) {
+            throw new Error("User or target user not found");
+        }
+
+        // Prevent self-follow
+        if (userId === targetUserId) {
+            throw new Error("You cannot follow yourself");
+        }
+
+        // Only update if not already following
+        if (!user.following.includes(new Types.ObjectId(targetUserId))) {
+            user.following.push(new Types.ObjectId(targetUserId));
+            await user.save();
+        }
+
+        // Only update if not already followed
+        if (!target.followers.includes(new Types.ObjectId(userId))) {
+            target.followers.push(new Types.ObjectId(userId));
+            await target.save();
+        }
     }
 
     async unfollow(userId: string, targetUserId: string): Promise<void> {
-        await UserModel.findByIdAndUpdate(userId, {
-            $pull: { following: targetUserId }
-        });
-        await UserModel.findByIdAndUpdate(targetUserId, {
-            $pull: { followers: userId }
-        });
+        const user = await UserModel.findById(userId);
+        const target = await UserModel.findById(targetUserId);
+
+        if (!user || !target) {
+            throw new Error("User or target user not found");
+        }
+
+        user.following = user.following.filter(id => id.toString() !== targetUserId);
+        target.followers = target.followers.filter(id => id.toString() !== userId);
+
+        await user.save();
+        await target.save();
     }
+
 
     private toUser(userDoc: any): User {
         const userObj = userDoc.toObject();
