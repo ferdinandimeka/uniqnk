@@ -6,5 +6,7 @@ export class User {
         public email: string,
         public phone: string,
         public password: string,
+        public followers: string[],
+        public following: string[],
     ) {}
 }
