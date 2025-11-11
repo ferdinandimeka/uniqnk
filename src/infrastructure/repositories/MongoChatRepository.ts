@@ -33,6 +33,7 @@ export class MongoChatRepository implements ChatRepository {
     // Transform each message into the structure expected by Chat
     lastMessages = lastMessages.map((msg: any) => ({
       sender: msg.sender?.toString(),
+      receiver: msg.receiver?.toString(), // ✅ FIXED
       text: msg.text,
       mediaUrls: msg.mediaUrls || [],
       isRead: msg.isRead,
