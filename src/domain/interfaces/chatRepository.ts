@@ -21,7 +21,7 @@ export interface ChatRepository {
   /**
    * Add a message to an existing chat
    */
-  sendMessage(chatId: string, receiver: string, sender: string, text?: string, mediaUrls?: string[]): Promise<Chat | null>;
+  sendMessage(chatId: string, sender: string, receiver: string, text?: string, mediaUrls?: string[]): Promise<Chat | null>;
 
   /**
    * Get all messages from a chat

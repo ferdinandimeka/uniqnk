@@ -58,7 +58,7 @@ export class ChatController {
   /** ✅ Send a message (text or media) */
   async sendMessage(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { chatId, receiver, sender, text, mediaUrls } = req.body;
+      const { chatId, sender, receiver, text, mediaUrls } = req.body;
 
       if (!chatId || !sender || (!text && (!mediaUrls || mediaUrls.length === 0))) {
         return res.status(400).json({ message: "chatId, sender and text or media required" });
@@ -66,8 +66,8 @@ export class ChatController {
 
       const message = await this.sendMessageUseCase.execute({
         chatId,
-        receiver,
         sender,
+        receiver,
         text,
         mediaUrls
       });

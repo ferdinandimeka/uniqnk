@@ -9,15 +9,6 @@ export class MongoChatRepository implements ChatRepository {
   /**
    * Convert a Mongoose Chat document into a domain Chat entity
    */
-  // private toDomain(chatDoc: any): Chat {
-  //   return new Chat(
-  //     chatDoc._id.toString(),
-  //     chatDoc.participants.map((p: mongoose.Types.ObjectId) => p.toString()),
-  //     chatDoc.lastMessage || [],
-  //     chatDoc.createdAt,
-  //     chatDoc.updatedAt
-  //   );
-  // }
 
   private toDomain(chatDoc: any): Chat {
   let lastMessages = [];
@@ -104,19 +95,21 @@ export class MongoChatRepository implements ChatRepository {
   ): Promise<Chat | null> {
     const chat = await ChatModel.findById(chatId);
     console.log("lastMessage type:", chat?.lastMessage);
-
+    console.log("sendMessage input:", { chatId, sender, receiver, text });
     if (!chat) return null;
 
     // append new message
     const newMessage = await ChatMessageModel.create({
       chatId,
-      sender,
-      receiver,
+      receiver: receiver,
+      sender: sender,
       text,
       mediaUrls,
       isRead: false,
       // createdAt: new Date(),
     });
+
+    console.log("New message created:", newMessage);
 
     // Update chat with new lastMessage
   await ChatModel.findByIdAndUpdate(chatId, {
