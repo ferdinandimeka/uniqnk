@@ -211,24 +211,24 @@ router.get("/:chatId/all-messages",async (req, res, next) => {
 
 /**
  * @swagger
- * /api/v1/chat/read/{messageId}:
+ * /api/v1/chat/read/{chatId}:
  *   put:
- *     summary: Mark a message as read
+ *     summary: Mark all messages in chat as read
  *     tags: [Chat]
  *     parameters:
  *       - in: path
- *         name: messageId
+ *         name: chatId
  *         schema:
  *           type: string
  *         required: true
- *         description: The ID of the message
+ *         description: The ID of the chat
  *     responses:
  *       200:
- *         description: Message marked as read
+ *         description: Messages marked as read
  */
-router.put("/read/:messageId", async (req, res, next) => {
+router.put("/read/:chatId", async (req, res, next) => {
     try {
-        await chatController.markMessageAsRead(req, res, next);
+        await chatController.markAllMessageAsRead(req, res, next);
     } catch (err) {
         next(err);
     }

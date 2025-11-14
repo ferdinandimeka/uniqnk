@@ -139,20 +139,20 @@ export class ChatController {
   }
 
   /** ✅ Mark a message as read */
-  async markMessageAsRead(req: Request, res: Response, next: NextFunction): Promise<Response> {
+  async markAllMessageAsRead(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { messageId } = req.params;
+      const { chatId } = req.params;
 
-      if (!messageId) {
-        return res.status(400).json({ message: "Message ID is required" });
+      if (!chatId) {
+        return res.status(400).json({ message: "Chat ID is required" });
       }
 
-      const updatedChat = await this.markMessageAsReadUseCase.execute(messageId);
+      const updatedChat = await this.markMessageAsReadUseCase.execute(chatId);
 
       if (updatedChat) {
         // 🎯 Emit socket event that message was read
-        emitSocketEvent(req, messageId, ChatEventEnum.MESSAGE_READ_EVENT, {
-          messageId,
+        emitSocketEvent(req, chatId, ChatEventEnum.MESSAGE_READ_EVENT, {
+          chatId,
         });
       }
 
