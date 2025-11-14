@@ -212,7 +212,7 @@ router.get("/:chatId/all-messages",async (req, res, next) => {
 /**
  * @swagger
  * /api/v1/chat/read/{messageId}:
- *   patch:
+ *   put:
  *     summary: Mark a message as read
  *     tags: [Chat]
  *     parameters:
