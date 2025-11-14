@@ -87,6 +87,44 @@ const io = new Server(server, {
 initializeSocketIO(io);
 app.set("io", io);
 
+io.on("connection", (socket) => {
+  console.log("socket connected:", socket.id);
+
+  // join a personal room (useful for direct addressing)
+  socket.on("join", ({ userId }) => {
+    if (userId) socket.join(userId);
+  });
+
+  // Caller sends offer to server targeting calleeId
+  socket.on("call-user", ({ to, from, offer, callType }) => {
+    io.to(to).emit("incoming-call", { from, offer, callType });
+  });
+
+  // Callee replies with answer
+  socket.on("answer-call", ({ to, from, answer }) => {
+    io.to(to).emit("call-answered", { from, answer });
+  });
+
+  // ICE candidates exchange
+  socket.on("ice-candidate", ({ to, candidate }) => {
+    io.to(to).emit("ice-candidate", candidate);
+  });
+
+  // End call
+  socket.on("end-call", ({ to }) => {
+    io.to(to).emit("call-ended");
+  });
+
+  // Busy signal
+  socket.on("busy", ({ to }) => {
+    io.to(to).emit("user-busy");
+  });
+
+  socket.on("disconnect", () => {
+    console.log("socket disconnected:", socket.id);
+  });
+});
+
 app.use(express.static("public"));
 app.use((err: any, req: any, res: any, next: any) => errorHandler(err, req, res, next));
 setupSwagger(app);
