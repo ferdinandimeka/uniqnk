@@ -176,15 +176,26 @@ export class MongoChatRepository implements ChatRepository {
   /**
    * Mark message as read
    */
-    async markMessageAsRead(messageId: string): Promise<Chat | null> {
-        const chatDoc = await ChatModel.findOneAndUpdate(
-            { "lastMessage._id": messageId },
-            { $set: { "lastMessage.$.isRead": true } },
-            { new: true }
-        );
-        return chatDoc ? this.toDomain(chatDoc) : null;
+   async markMessageAsRead(messageId: string): Promise<Chat | null> {
+    const updatedMessage = await ChatMessageModel.findByIdAndUpdate(
+      messageId,
+      { isRead: true },
+      { new: true }
+    );
+
+    if (!updatedMessage) return null;
+
+    // If the message is the chat's lastMessage, update chat.updatedAt
+    const chat = await ChatModel.findOne({ lastMessage: messageId });
+
+    if (chat) {
+      await ChatModel.findByIdAndUpdate(chat._id, {
+        updatedAt: new Date(),
+      });
     }
 
+    return chat ? this.toDomain(chat) : null;
+  }
 
   /**
    * Delete a chat

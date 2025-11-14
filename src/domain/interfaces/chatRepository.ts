@@ -36,7 +36,7 @@ export interface ChatRepository {
   /**
    * Mark a specific message as read
    */
-  markMessageAsRead(chatId: string): Promise<Chat | null>;
+  markMessageAsRead(messageId: string): Promise<Chat | null>;
 
   /**
    * Delete a chat by ID
