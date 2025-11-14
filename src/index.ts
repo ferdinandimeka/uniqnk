@@ -49,23 +49,6 @@ const allowedOrigins = [
  "*"
 ];
 
-// // Use the cors middleware before any route handlers
-// app.use(
-//   cors({
-//     origin: (origin, callback) => {
-//       if (!origin || allowedOrigins.includes(origin)) {
-//         // Allow requests with no origin (like curl or Postman)
-//         callback(null, true);
-//       } else {
-//         callback(new Error('The CORS policy for this site does not allow access from the specified origin.'));
-//       }
-//     },
-//     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-//     allowedHeaders: ['Content-Type', 'Authorization'],
-//     credentials: true,
-//   })
-// );
-
 // Security headers for COOP and COEP
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
@@ -109,6 +92,6 @@ app.use((err: any, req: any, res: any, next: any) => errorHandler(err, req, res,
 setupSwagger(app);
 
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     logger.info(`Server is running on http://localhost:${PORT}`);
 });
