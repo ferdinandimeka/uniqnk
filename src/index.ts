@@ -1,4 +1,5 @@
-import express from "express";
+// import express from "express";
+import express, { Request, Response, RequestHandler, NextFunction } from 'express'
 import mongoose from 'mongoose';
 import rateLimit from "express-rate-limit"
 import helmet from "helmet"
@@ -17,7 +18,19 @@ import dotenv from "dotenv";
 import { initializeSocketIO } from "./socket";
 import { Server } from "socket.io";
 import http from "http";
+import { StreamClient } from "@stream-io/node-sdk";
 dotenv.config();
+
+const STREAM_API_KEY = process.env.STREAM_API_KEY;
+const STREAM_API_SECRET = process.env.STREAM_API_SECRET;
+
+if (!STREAM_API_KEY || !STREAM_API_SECRET) {
+  console.error("Set STREAM_API_KEY and STREAM_API_SECRET in env");
+  process.exit(1);
+}
+
+// create server client (server-side)
+const serverClient = new StreamClient(STREAM_API_KEY, STREAM_API_SECRET);
 
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5mins
@@ -70,6 +83,43 @@ app.use("/api/v1/stories", storyRoutes)
 app.use("/api/v1/posts", postRoutes)
 app.use("/api/v1/comments", commentRoutes)
 app.use("/api/v1/chat", chatRoutes)
+
+const asyncHandler = (fn: RequestHandler): RequestHandler => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    Promise.resolve(fn(req, res, next)).catch(next);
+  };
+};
+
+app.post(
+  "/token",
+  asyncHandler(async (req: Request, res: Response) => {
+    const { userId, name } = req.body;
+
+    if (!userId) {
+      res.status(400).json({ error: "userId required" });
+      return; // <-- important to stop execution
+    }
+
+    try {
+      const token = serverClient.generateUserToken(userId);
+
+      // Do NOT return res.json(); just call it
+      res.json({
+        success: true,
+        token,
+        apiKey: STREAM_API_KEY,
+        user: { id: userId, name },
+      });
+    } catch (err) {
+      console.error("token error", err);
+      res.status(500).json({ success: false, error: String(err) });
+    }
+  })
+);
+
+
+
+// app.post("/token", tokenRoute);
 
 // Create HTTP server
 const server = http.createServer(app);
