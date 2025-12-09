@@ -13,7 +13,6 @@ import { UpdateRestrictionSettings } from "../../use-cases/settings/updateRestri
 import { BlockUser } from "../../use-cases/settings/blockUser";
 import { UnBlockUser } from "../../use-cases/settings/unBlockUser";
 import { ReportProblem } from "../../use-cases/settings/reportProblem";
-// import { SendSupportRequest } from "../../use-cases/settings/sendSupportRequest";
 
 import { SettingsController } from "../controllers/SettingsController";
 
@@ -30,7 +29,6 @@ const updateRestrictions = new UpdateRestrictionSettings(settingsRepository);
 const blockUser = new BlockUser(settingsRepository);
 const unblockUser = new UnBlockUser(settingsRepository);
 const sendReport = new ReportProblem(settingsRepository);
-// const sendSupport = new SendSupportRequest(settingsRepository);
 
 // Controller
 const controller = new SettingsController(
@@ -43,7 +41,6 @@ const controller = new SettingsController(
     blockUser,
     unblockUser,
     sendReport,
-    // sendSupport
 );
 
 /**
@@ -53,7 +50,6 @@ const controller = new SettingsController(
  *   description: User settings endpoints
  */
 
-
 /**
  * @swagger
  * /api/v1/settings/{userId}:
@@ -61,9 +57,10 @@ const controller = new SettingsController(
  *     summary: Get all settings for a user
  *     tags: [Settings]
  *     parameters:
- *       - name: userId
- *         in: path
+ *       - in: path
+ *         name: userId
  *         required: true
+ *         description: ID of the user
  *     responses:
  *       200:
  *         description: User settings fetched successfully
@@ -74,10 +71,39 @@ router.get("/:userId", (req, res, next) => controller.getSettings(req, res, next
  * @swagger
  * /api/v1/settings/{userId}/preferences:
  *   put:
- *     summary: Update account preferences (theme, language, data usage)
+ *     summary: Update profile preferences (theme, language, autoplay, data usage)
  *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               theme:
+ *                 type: string
+ *                 example: "dark"
+ *               language:
+ *                 type: string
+ *                 example: "en"
+ *               autoplayVideos:
+ *                 type: boolean
+ *                 example: true
+ *               dataSaver:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Profile preferences updated
  */
-router.put("/:userId/preferences", (req, res, next) => controller.updateProfileSettings(req, res, next));
+router.put("/:userId/preferences", (req, res, next) =>
+    controller.updateProfileSettings(req, res, next)
+);
 
 /**
  * @swagger
@@ -85,29 +111,139 @@ router.put("/:userId/preferences", (req, res, next) => controller.updateProfileS
  *   put:
  *     summary: Update notification settings
  *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               push:
+ *                 type: boolean
+ *                 example: true
+ *               email:
+ *                 type: boolean
+ *                 example: false
+ *               sms:
+ *                 type: boolean
+ *                 example: false
+ *               inApp:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Notification settings updated
  */
-router.put("/:userId/notifications", (req, res, next) => controller.updateNotificationSettings(req, res, next));
+router.put("/:userId/notifications", (req, res, next) =>
+    controller.updateNotificationSettings(req, res, next)
+);
 
 /**
  * @swagger
  * /api/v1/settings/{userId}/privacy:
- *   patch:
+ *   put:
  *     summary: Update privacy settings
  *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profileVisibility:
+ *                 type: string
+ *                 example: "friends_only"
+ *               showActivityStatus:
+ *                 type: boolean
+ *                 example: false
+ *               showLastSeen:
+ *                 type: boolean
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Privacy settings updated
  */
-router.put("/:userId/privacy", (req, res, next) => controller.updatePrivacySettings(req, res, next));
+router.put("/:userId/privacy", (req, res, next) =>
+    controller.updatePrivacySettings(req, res, next)
+);
 
-// Account security
-router.put("/:userId/security", (req, res, next) => controller.updateSecuritySettings(req, res, next));
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/security:
+ *   put:
+ *     summary: Update account security settings
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               twoFactorAuth:
+ *                 type: boolean
+ *                 example: true
+ *               loginAlerts:
+ *                 type: boolean
+ *                 example: true
+ *               deviceHistory:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["iPhone 14", "Galaxy S22"]
+ *     responses:
+ *       200:
+ *         description: Security settings updated
+ */
+router.put("/:userId/security", (req, res, next) =>
+    controller.updateSecuritySettings(req, res, next)
+);
 
 /**
  * @swagger
  * /api/v1/settings/{userId}/restrictions:
- *   patch:
+ *   put:
  *     summary: Update restriction settings (blocked accounts, limits)
  *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               blockedUsers:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 example: ["67283289bd83298bd123aa"]
+ *               restrictedMode:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Restriction settings updated
  */
-router.put("/:userId/restrictions", (req, res, next) => controller.updateRestrictions(req, res, next));
+router.put("/:userId/restrictions", (req, res, next) =>
+    controller.updateRestrictions(req, res, next)
+);
 
 /**
  * @swagger
@@ -116,20 +252,21 @@ router.put("/:userId/restrictions", (req, res, next) => controller.updateRestric
  *     summary: Block another user
  *     tags: [Settings]
  *     parameters:
- *       - name: userId
- *         in: path
+ *       - in: path
+ *         name: userId
  *         required: true
  *         description: ID of the user performing the block
- *       - in: body
- *         name: data
- *         required: true
- *         description: User to block
- *         schema:
- *           type: object
- *           properties:
- *             targetUserId:
- *               type: string
- *               example: "678ffe2ba09d3a21e3bf45b9"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [targetUserId]
+ *             properties:
+ *               targetUserId:
+ *                 type: string
+ *                 example: "678ffe2ba09d3a21e3bf45b9"
  *     responses:
  *       200:
  *         description: User blocked successfully
@@ -149,20 +286,20 @@ router.post("/:userId/block", (req, res, next) =>
  *     summary: Unblock a user
  *     tags: [Settings]
  *     parameters:
- *       - name: userId
- *         in: path
+ *       - in: path
+ *         name: userId
  *         required: true
- *         description: ID of the user performing the unblock
- *       - in: body
- *         name: data
- *         required: true
- *         description: User to unblock
- *         schema:
- *           type: object
- *           properties:
- *             targetUserId:
- *               type: string
- *               example: "678ffe2ba09d3a21e3bf45b9"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [targetUserId]
+ *             properties:
+ *               targetUserId:
+ *                 type: string
+ *                 example: "678ffe2ba09d3a21e3bf45b9"
  *     responses:
  *       200:
  *         description: User unblocked successfully
@@ -179,12 +316,31 @@ router.post("/:userId/unblock", (req, res, next) =>
  * @swagger
  * /api/v1/settings/{userId}/report:
  *   post:
- *     summary: Report a problem with screenshot + description
+ *     summary: Report a problem with optional screenshot + description
  *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               description:
+ *                 type: string
+ *                 example: "App keeps crashing when I open messages."
+ *               screenshotUrl:
+ *                 type: string
+ *                 example: "https://yourapp.com/uploads/issue123.png"
+ *     responses:
+ *       200:
+ *         description: Report submitted successfully
  */
-router.post("/:userId/report", (req, res, next) => controller.reportProblem(req, res, next));
-
-// Support
-// router.post("/:userId/support", (req, res, next) => controller.support(req, res, next));
+router.post("/:userId/report", (req, res, next) =>
+    controller.reportProblem(req, res, next)
+);
 
 export { router as settingsRoutes };
