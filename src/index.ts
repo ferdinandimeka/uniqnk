@@ -19,7 +19,7 @@ import dotenv from "dotenv";
 import { initializeSocketIO } from "./socket";
 import { Server } from "socket.io";
 import http from "http";
-import { StreamClient } from "@stream-io/node-sdk";
+// import { StreamClient } from "@stream-io/node-sdk";
 dotenv.config();
 
 const STREAM_API_KEY = process.env.STREAM_API_KEY;
@@ -31,7 +31,7 @@ if (!STREAM_API_KEY || !STREAM_API_SECRET) {
 }
 
 // create server client (server-side)
-const serverClient = new StreamClient(STREAM_API_KEY, STREAM_API_SECRET);
+// const serverClient = new StreamClient(STREAM_API_KEY, STREAM_API_SECRET);
 
 const limiter = rateLimit({
   windowMs: 5 * 60 * 1000, // 5mins
@@ -92,32 +92,32 @@ const asyncHandler = (fn: RequestHandler): RequestHandler => {
   };
 };
 
-app.post(
-  "/token",
-  asyncHandler(async (req: Request, res: Response) => {
-    const { userId, name } = req.body;
+// app.post(
+//   "/token",
+//   asyncHandler(async (req: Request, res: Response) => {
+//     const { userId, name } = req.body;
 
-    if (!userId) {
-      res.status(400).json({ error: "userId required" });
-      return; // <-- important to stop execution
-    }
+//     if (!userId) {
+//       res.status(400).json({ error: "userId required" });
+//       return; // <-- important to stop execution
+//     }
 
-    try {
-      const token = serverClient.generateUserToken(userId);
+//     try {
+//       const token = serverClient.generateUserToken(userId);
 
-      // Do NOT return res.json(); just call it
-      res.json({
-        success: true,
-        token,
-        apiKey: STREAM_API_KEY,
-        user: { id: userId, name },
-      });
-    } catch (err) {
-      console.error("token error", err);
-      res.status(500).json({ success: false, error: String(err) });
-    }
-  })
-);
+//       // Do NOT return res.json(); just call it
+//       res.json({
+//         success: true,
+//         token,
+//         apiKey: STREAM_API_KEY,
+//         user: { id: userId, name },
+//       });
+//     } catch (err) {
+//       console.error("token error", err);
+//       res.status(500).json({ success: false, error: String(err) });
+//     }
+//   })
+// );
 
 
 
