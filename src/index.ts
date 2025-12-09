@@ -12,6 +12,7 @@ import { storyRoutes } from "./interface/routes/storyRoutes";
 import { postRoutes } from "./interface/routes/postRoute";
 import { commentRoutes } from "./interface/routes/commentRoute";
 import { chatRoutes } from "./interface/routes/chatRoute";
+import { settingsRoutes } from "./interface/routes/settingsRoute";
 import "./jobs/cleanup"; // Import the cleanup job
 import cors from 'cors';
 import dotenv from "dotenv";
@@ -83,6 +84,7 @@ app.use("/api/v1/stories", storyRoutes)
 app.use("/api/v1/posts", postRoutes)
 app.use("/api/v1/comments", commentRoutes)
 app.use("/api/v1/chat", chatRoutes)
+app.use("/api/v1/settings", settingsRoutes)
 
 const asyncHandler = (fn: RequestHandler): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction) => {
