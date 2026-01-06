@@ -6,7 +6,7 @@ export class UpdateNotificationSettings {
 
   async execute(
     userId: string,
-    data: Partial<Settings>
+    data: Settings
   ): Promise<Settings> {
     return this.settingsRepository.updateNotificationSettings(userId, data);
   }

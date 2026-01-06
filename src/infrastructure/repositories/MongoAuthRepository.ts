@@ -37,4 +37,15 @@ export class MongoAuthRepository implements AuthRepository {
         const newUser = new UserModel({ fullName, username, phone, email, password });
         await newUser.save();
     }
+
+    async verifyPassword(email: string, password: string): Promise<boolean> {
+        const user = await UserModel.findOne({ email });
+
+        if (!user) {
+            throw new ApiError(404, "User not found");
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        return isMatch;
+    }
 }

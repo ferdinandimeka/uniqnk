@@ -10,32 +10,20 @@ export interface SettingsRepository {
     // PROFILE
     updateProfilePreferences(
         userId: string,
-        prefs: Partial<Pick<Settings,
-            "showOnlineStatus" |
-            "showActivityStatus" |
-            "showLastSeen"
-        >>
+        prefs: Partial<Settings>
     ): Promise<Settings>;
 
     // NOTIFICATIONS
     updateNotificationSettings(
         userId: string,
-        prefs: Partial<Pick<Settings,
-            "pushNotifications" |
-            "messageNotifications" |
-            "friendRequestNotifications" |
-            "tagNotifications" |
-            "soundEnabled"
-        >>
+        settings: Settings
     ): Promise<Settings>;
 
     // SECURITY
     updateSecuritySettings(
         userId: string,
         prefs: Partial<Pick<Settings,
-            "twoFactorEnabled" |
-            "loginAlerts" |
-            "recognizedDevices"
+            "security"
         >>
     ): Promise<Settings>;
 
@@ -46,9 +34,7 @@ export interface SettingsRepository {
     updatePrivacySettings(
         userId: string,
         prefs: Partial<Pick<Settings,
-            "whoCanMessage" |
-            "whoCanAddToGroups" |
-            "whoCanSeeMyPosts"
+            "privacy"
         >>
     ): Promise<Settings>;
 
@@ -58,7 +44,7 @@ export interface SettingsRepository {
     // RESTRICTIONS
     updateRestrictions(
         userId: string,
-        prefs: Partial<Pick<Settings, "restrictedMode">>
+        prefs: Partial<Pick<Settings, "restrictions">>
     ): Promise<Settings>;
 
     // SUPPORT

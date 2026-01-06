@@ -169,9 +169,9 @@ const SettingsSchema = new Schema({
         showActivityStatus: { type: Boolean, default: true },
         showLastSeen: { type: Boolean, default: true },
         profileVisibility: {
-        type: String,
-        enum: ["public", "followers", "private"],
-        default: "public"
+            type: String,
+            enum: ["public", "followers", "private"],
+            default: "public"
         }
     },
 

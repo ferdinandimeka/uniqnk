@@ -1,42 +1,60 @@
-// src/mappers/settingsMapper.ts
+// src/infrastructure/mappers/settingsMapper.ts
 
 import { Settings } from "../domain/entities/Settings";
 
 export function mapSettings(doc: any): Settings {
-    if (!doc) return null as any;
+  if (!doc) return null as any;
 
-    return new Settings(
-        doc._id.toString(),
-        doc.userId.toString(),
+  const settings = doc.settings ?? {};
 
-        doc.showOnlineStatus,
-        doc.showActivityStatus,
-        doc.showLastSeen,
+  return new Settings(
+    doc._id.toString(),
+    doc._id.toString(), // userId === user _id
 
-        doc.pushNotifications,
-        doc.messageNotifications,
-        doc.friendRequestNotifications,
-        doc.tagNotifications,
-        doc.soundEnabled,
+    {
+    //   showOnlineStatus: settings.profile?.showOnlineStatus ?? true,
+      showActivityStatus: settings.profile?.showActivityStatus ?? true,
+      showLastSeen: settings.profile?.showLastSeen ?? true,
+      profileVisibility: settings.profile?.profileVisibility ?? "public",
+    },
 
-        doc.twoFactorEnabled,
-        doc.loginAlerts,
-        doc.recognizedDevices,
+    {
+      likes: settings.notifications?.likes ?? true,
+      comments: settings.notifications?.comments ?? true,
+      followers: settings.notifications?.followers ?? true,
+      directMessages: settings.notifications?.directMessages ?? true,
+      mentions: settings.notifications?.mentions ?? true,
+      sound: settings.notifications?.sound ?? true,
+      vibration: settings.notifications?.vibration ?? true,
+    },
 
-        doc.whoCanMessage,
-        doc.whoCanAddToGroups,
-        doc.whoCanSeeMyPosts,
-        doc.blockedUsers?.map((id: any) => id.toString()) ?? [],
+    {
+      twoFactorAuth: settings.security?.twoFactorAuth ?? false,
+      loginAlerts: settings.security?.loginAlerts ?? true,
+      authorizedDevices: settings.security?.authorizedDevices ?? [],
+    },
 
-        doc.restrictedMode,
+    {
+      recentSearches: [],
+      loginHistory: [],
+    },
 
-        doc.aboutApp,
-        doc.termsAccepted,
+    {
+      allowTagsFrom: settings.restrictions?.allowTagsFrom ?? "everyone",
+      allowMessagesFrom: settings.restrictions?.allowMessagesFrom ?? "followers",
+      dataDownload: settings.restrictions?.dataDownload ?? false,
+    },
 
-        doc.lastReportMessage,
-        doc.lastSupportRequest,
+    {
+      mutedUsers: settings.support?.mutedUsers ?? [],
+      restrictedUsers: settings.support?.restrictedUsers ?? [],
+    },
 
-        doc.createdAt,
-        doc.updatedAt
-    );
+    {
+      reports: settings.legal?.reports ?? [],
+    },
+
+    doc.createdAt,
+    doc.updatedAt
+  );
 }

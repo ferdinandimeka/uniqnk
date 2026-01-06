@@ -1,45 +1,111 @@
-// src/entities/Settings.ts
+// src/domain/entities/Settings.ts
 
 export class Settings {
-    constructor(
-        public readonly id: string,
-        public userId: string,
+  constructor(
+    public readonly id: string,
+    public readonly userId: string,
 
-        // PROFILE
-        public showOnlineStatus: boolean = true,
-        public showActivityStatus: boolean = true,
-        public showLastSeen: boolean = true,
+    // PROFILE
+    public profile: {
+      showActivityStatus: boolean;
+      showLastSeen: boolean;
+      profileVisibility: "public" | "followers" | "private";
+    } = {
+      showActivityStatus: true,
+      showLastSeen: true,
+      profileVisibility: "public",
+    },
 
-        // NOTIFICATIONS
-        public pushNotifications: boolean = true,
-        public messageNotifications: boolean = true,
-        public friendRequestNotifications: boolean = true,
-        public tagNotifications: boolean = true,
-        public soundEnabled: boolean = true,
+    // NOTIFICATIONS
+    public notifications: {
+      likes: boolean;
+      comments: boolean;
+      followers: boolean;
+      directMessages: boolean;
+      mentions: boolean;
+      sound: boolean;
+      vibration: boolean;
+    } = {
+      likes: true,
+      comments: true,
+      followers: true,
+      directMessages: true,
+      mentions: true,
+      sound: true,
+      vibration: true,
+    },
 
-        // ACCOUNT SECURITY
-        public twoFactorEnabled: boolean = false,
-        public loginAlerts: boolean = true,
-        public recognizedDevices: Array<{ device: string; lastActive: Date }> = [],
+    // SECURITY
+    public security: {
+      twoFactorAuth: boolean;
+      loginAlerts: boolean;
+      authorizedDevices: {
+        device: string;
+        ip: string;
+        lastActive: Date;
+      }[];
+    } = {
+      twoFactorAuth: false,
+      loginAlerts: true,
+      authorizedDevices: [],
+    },
 
-        // PRIVACY
-        public whoCanMessage: "everyone" | "friends" | "no_one" = "everyone",
-        public whoCanAddToGroups: "everyone" | "friends" | "no_one" = "everyone",
-        public whoCanSeeMyPosts: "everyone" | "friends" | "only_me" = "everyone",
-        public blockedUsers: string[] = [],
+    // ACTIVITY
+    public activity: {
+      recentSearches: string[];
+      loginHistory: {
+        device: string;
+        location: string;
+        ip: string;
+        date: Date;
+      }[];
+    } = {
+      recentSearches: [],
+      loginHistory: [],
+    },
 
-        // RESTRICTIONS
-        public restrictedMode: boolean = false,
+    // PRIVACY
+    public privacy: {
+      allowTagsFrom: "everyone" | "followers" | "no_one";
+      allowMessagesFrom: "everyone" | "followers";
+      dataDownload: boolean;
+    } = {
+      allowTagsFrom: "everyone",
+      allowMessagesFrom: "everyone",
+      dataDownload: false,
+    },
 
-        // APP INFO
-        public aboutApp: string = "Social App v1.0",
-        public termsAccepted: boolean = true,
+    // RESTRICTIONS
+    public restrictions: {
+      mutedUsers: string[];
+      restrictedUsers: string[];
+    } = {
+      mutedUsers: [],
+      restrictedUsers: [],
+    },
 
-        // REPORT + SUPPORT
-        public lastReportMessage?: string,
-        public lastSupportRequest?: string,
+    // SUPPORT / REPORTS
+    public support: {
+      reports: {
+        category: string;
+        description: string;
+        images: string[];
+        createdAt: Date;
+      }[];
+    } = {
+      reports: [],
+    },
 
-        public createdAt: Date = new Date(),
-        public updatedAt: Date = new Date()
-    ) {}
+    // LEGAL
+    public legal: {
+      termsAccepted: boolean;
+      privacyPolicyAccepted: boolean;
+    } = {
+      termsAccepted: false,
+      privacyPolicyAccepted: false,
+    },
+
+    public createdAt: Date = new Date(),
+    public updatedAt: Date = new Date()
+  ) {}
 }

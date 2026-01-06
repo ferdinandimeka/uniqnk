@@ -4,6 +4,7 @@ import { Settings } from "../../domain/entities/Settings";
 import { SettingsRepository } from "../../domain/interfaces/settingRepository";
 import { UserModel } from "../models/UserModel";
 import { mapSettings } from "../../mappers/settingsMapper";
+import mongoose from "mongoose";
 
 export class MongoSettingsRepository implements SettingsRepository {
 
@@ -30,14 +31,45 @@ export class MongoSettingsRepository implements SettingsRepository {
         return mapSettings(doc);
     }
 
-    async updateNotificationSettings(userId: string, prefs: Partial<Settings>): Promise<Settings> {
-        const doc = await UserModel.findOneAndUpdate(
-            { userId },
-            { $set: prefs },
+    async updateNotificationSettings(
+        userId: string,
+        settings: Settings,
+    ): Promise<Settings> {
+
+        if (!settings || Object.keys(settings).length === 0) {
+            throw new Error("No notification fields to update");
+        }
+
+        // Build the nested update object
+        const updateFields: Record<string, any> = {};
+        if (settings) {
+            for (const [key, value] of Object.entries(settings)) {
+                updateFields[`settings.notifications.${key}`] = value as boolean;
+            }
+        }
+        console.log("Update Fields:", updateFields); // DEBUG
+
+        const doc = await UserModel.findByIdAndUpdate(
+             userId,
+            { $set: updateFields },
             { new: true }
         );
+
+        if (!doc) {
+            throw new Error("User not found");
+        }
+
         return mapSettings(doc);
     }
+
+    // async updateNotificationSettings(userId: string, prefs: Partial<Settings>): Promise<Settings> {
+    //     const doc = await UserModel.findOneAndUpdate(
+    //         { userId },
+    //         { $set: prefs },
+    //         { new: true }
+    //     );
+    //     return mapSettings(doc);
+    // }
 
     async updateSecuritySettings(userId: string, prefs: Partial<Settings>): Promise<Settings> {
         const doc = await UserModel.findOneAndUpdate(

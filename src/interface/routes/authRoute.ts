@@ -2,6 +2,7 @@ import { Router } from "express";
 import { MongoAuthRepository } from "../../infrastructure/repositories/MongoAuthRepository";
 import { LoginUser } from "../../use-cases/auth/signIn";
 import { SignUpUser } from "../../use-cases/auth/signUp";
+import { VerifyPassword } from "../../use-cases/auth/verifyPassword";
 import { AuthController } from "../controllers/AuthController";
 
 const router = Router();
@@ -9,9 +10,9 @@ const router = Router();
 const authRepository = new MongoAuthRepository();
 const registerUser = new SignUpUser(authRepository);
 const loginUser = new LoginUser(authRepository);
+const verifyPassword = new VerifyPassword(authRepository);
 
-const authController = new AuthController(loginUser, registerUser);
-
+const authController = new AuthController(loginUser, registerUser, verifyPassword);
 /**
  * @swagger
  * /api/v1/auth/login:
@@ -93,5 +94,42 @@ router.post("/login", (req, res, next) => authController.login(req, res, next));
  */
 router.post("/register", (req, res, next) => authController.signUp(req, res, next));
 
+/**
+ * @swagger
+ * /api/v1/auth/verify-password:
+ *   post:
+ *     summary: Verify user password
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 example: "user@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "yourpassword"
+ *     responses:
+ *       200:
+ *         description: Password verification successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isValid:
+ *                   type: boolean
+ *       404:
+ *         description: User not found
+ */
+router.post("/verify-password", (req, res, next) => authController.verifyPassword(req, res, next));
 
 export { router as authRoutes };
