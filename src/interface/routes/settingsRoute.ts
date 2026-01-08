@@ -115,6 +115,8 @@ router.put("/:userId/preferences", (req, res, next) =>
  *       - in: path
  *         name: userId
  *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -122,22 +124,60 @@ router.put("/:userId/preferences", (req, res, next) =>
  *           schema:
  *             type: object
  *             properties:
- *               push:
+ *               likes:
  *                 type: boolean
  *                 example: true
+ *               comments:
+ *                 type: boolean
+ *                 example: true
+ *               followers:
+ *                 type: boolean
+ *                 example: false
+ *               directMessages:
+ *                 type: boolean
+ *                 example: true
+ *               mentions:
+ *                 type: boolean
+ *                 example: true
+ *               profileViews:
+ *                 type: boolean
+ *                 example: true
+ *               sound:
+ *                 type: boolean
+ *                 example: true
+ *               vibration:
+ *                 type: boolean
+ *                 example: false
  *               email:
- *                 type: boolean
- *                 example: false
- *               sms:
- *                 type: boolean
- *                 example: false
- *               inApp:
- *                 type: boolean
- *                 example: true
+ *                 type: object
+ *                 properties:
+ *                   feedbackEmails:
+ *                     type: boolean
+ *                     example: true
+ *                   reminderEmails:
+ *                     type: boolean
+ *                     example: false
+ *                   promotionalEmails:
+ *                     type: boolean
+ *                     example: false
+ *                   productEmails:
+ *                     type: boolean
+ *                     example: true
+ *                   supportEmails:
+ *                     type: boolean
+ *                     example: true
+ *                   securityEmails:
+ *                     type: boolean
+ *                     example: true
  *     responses:
  *       200:
- *         description: Notification settings updated
+ *         description: Notification settings updated successfully
+ *       400:
+ *         description: Invalid notification payload
+ *       404:
+ *         description: User not found
  */
+
 router.put("/:userId/notifications", (req, res, next) =>
     controller.updateNotificationSettings(req, res, next)
 );

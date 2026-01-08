@@ -1,13 +1,13 @@
 import { SettingsRepository } from "../../domain/interfaces/settingRepository";
-import { Settings } from "../../domain/entities/Settings";
+import { UpdateNotificationDTO } from "../../dtos/update-notification.dto";
 
 export class UpdateNotificationSettings {
   constructor(private settingsRepository: SettingsRepository) {}
 
   async execute(
     userId: string,
-    data: Settings
-  ): Promise<Settings> {
+    data: UpdateNotificationDTO
+  ): Promise<UpdateNotificationDTO> {
     return this.settingsRepository.updateNotificationSettings(userId, data);
   }
 }

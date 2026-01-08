@@ -1,6 +1,7 @@
 // src/repositories/SettingsRepository.ts
 
 import { Settings } from "../entities/Settings";
+import { UpdateNotificationDTO } from "../../dtos/update-notification.dto";
 
 export interface SettingsRepository {
     getByUserId(userId: string): Promise<Settings | null>;
@@ -16,8 +17,8 @@ export interface SettingsRepository {
     // NOTIFICATIONS
     updateNotificationSettings(
         userId: string,
-        settings: Settings
-    ): Promise<Settings>;
+        settings: UpdateNotificationDTO
+    ): Promise<UpdateNotificationDTO>;
 
     // SECURITY
     updateSecuritySettings(
