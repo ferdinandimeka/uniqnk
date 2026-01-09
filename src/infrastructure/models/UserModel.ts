@@ -12,7 +12,9 @@ interface IUserSettings {
         likes: boolean;
         comments: boolean;
         followers: boolean;
-        directMessages: boolean;
+        reposts: boolean;
+        liveReels: boolean;
+        interactedPosts: boolean;
         mentions: boolean;
         sound: boolean;
         vibration: boolean;
@@ -117,7 +119,9 @@ const SettingsSchema = new Schema({
         likes: { type: Boolean, default: true },
         comments: { type: Boolean, default: true },
         followers: { type: Boolean, default: true },
-        directMessages: { type: Boolean, default: true },
+        reposts: { type: Boolean, default: true },
+        interactedPosts: { type: Boolean, default: true },
+        liveReels: { type: Boolean, default: true },
         mentions: { type: Boolean, default: true },
         sound: { type: Boolean, default: true },
         vibration: { type: Boolean, default: true },

@@ -9,8 +9,9 @@ import { UpdateNotificationDTO } from "../../dtos/update-notification.dto";
 export class MongoSettingsRepository implements SettingsRepository {
 
     async getByUserId(userId: string): Promise<Settings | null> {
-        const doc = await UserModel.findOne({ userId });
-        return mapSettings(doc) as Settings; // Ensure the return type is Settings
+        const doc = await UserModel.findById(userId);
+        console.log("doc: ", doc)
+        return mapSettings(doc); // Ensure the return type is Settings
     }
 
     async create(settings: Settings): Promise<Settings> {
