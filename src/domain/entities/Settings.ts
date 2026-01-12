@@ -21,7 +21,9 @@ export class Settings {
       likes: boolean;
       comments: boolean;
       followers: boolean;
-      directMessages: boolean;
+      reposts: boolean;
+      interactedPosts: boolean;
+      liveReels: boolean;
       mentions: boolean;
       sound: boolean;
       vibration: boolean;
@@ -29,7 +31,9 @@ export class Settings {
       likes: true,
       comments: true,
       followers: true,
-      directMessages: true,
+      reposts: true,
+      interactedPosts: true,
+      liveReels: true,
       mentions: true,
       sound: true,
       vibration: true,
