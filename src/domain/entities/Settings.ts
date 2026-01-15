@@ -27,6 +27,14 @@ export class Settings {
       mentions: boolean;
       sound: boolean;
       vibration: boolean;
+      email: {
+        feedbackEmails: boolean;
+        reminderEmails: boolean;
+        promotionalEmails: boolean;
+        productEmails: boolean;
+        supportEmails: boolean;
+        securityEmails: boolean;
+      }
     } = {
       likes: true,
       comments: true,
@@ -37,6 +45,14 @@ export class Settings {
       mentions: true,
       sound: true,
       vibration: true,
+      email: {
+        feedbackEmails: true,
+        reminderEmails: true,
+        promotionalEmails: false,
+        productEmails: true,
+        supportEmails: true,
+        securityEmails: true,
+      }
     },
 
     // SECURITY

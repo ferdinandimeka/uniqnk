@@ -17,8 +17,15 @@ export function mapSettings(doc: any): Settings {
       showLastSeen: settings.profile?.showLastSeen ?? true,
       profileVisibility: settings.profile?.profileVisibility ?? "public",
     },
-
     {
+      email: {
+        feedbackEmails: settings.notifications?.email?.feedbackEmails ?? true,
+        reminderEmails: settings.notifications?.email?.reminderEmails ?? true,
+        promotionalEmails: settings.notifications?.email?.promotionalEmails ?? false,
+        productEmails: settings.notifications?.email?.productEmails ?? true,
+        supportEmails: settings.notifications?.email?.supportEmails ?? true,
+        securityEmails: settings.notifications?.email?.securityEmails ?? true,
+      },
       likes: settings.notifications?.likes ?? true,
       comments: settings.notifications?.comments ?? true,
       followers: settings.notifications?.followers ?? true,
