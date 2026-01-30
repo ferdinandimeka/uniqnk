@@ -10,7 +10,11 @@ import { UpdateRestrictionSettings } from "../../use-cases/settings/updateRestri
 import { BlockUser } from "../../use-cases/settings/blockUser";
 import { UnBlockUser } from "../../use-cases/settings/unBlockUser";
 import { ReportProblem } from "../../use-cases/settings/reportProblem";
-// import { SendSupportRequest } from "../../use-cases/settings/sendSupportRequest";
+import { UpdateAuthSettings } from "../../use-cases/settings/updateAuth";
+import { VerifyPinOrBiometric } from "../../use-cases/settings/verifyPinOrBiometric";
+import { SecurityQuestion } from "../../use-cases/settings/securityQuestion";
+import { Set2faAuth } from "../../use-cases/settings/2faAuth";
+import { Verify2faAuth } from "../../use-cases/settings/verify2faAuth";
 
 export class SettingsController {
     constructor(
@@ -23,7 +27,11 @@ export class SettingsController {
         private blockUser: BlockUser,
         private unblockUser: UnBlockUser,
         private sendReport: ReportProblem,
-        // private sendSupport: SendSupportRequest,
+        private updateAuth: UpdateAuthSettings,
+        private verifyPinOrBiometric: VerifyPinOrBiometric,
+        private securityQuestion: SecurityQuestion,
+        private set2faAuth: Set2faAuth,
+        private verify2faAuth: Verify2faAuth,
     ) {}
 
     async getSettings(req: Request, res: Response, next: NextFunction) {
@@ -108,12 +116,48 @@ export class SettingsController {
         }
     }
 
-    // async support(req: Request, res: Response, next: NextFunction) {
-    //     try {
-    //         const data = await this.sendSupport.execute(req.params.userId, req.body.message);
-    //         res.json({ success: true, data });
-    //     } catch (error) {
-    //         next(error);
-    //     }
-    // }
+    async updateAuthSettings(req: Request, res: Response, next: NextFunction) {
+        try {
+            const data = await this.updateAuth.execute(req.params.userId, req.body);
+            res.json({ success: true, data });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async verifyPinOrBiometricHandler(req: Request, res: Response, next: NextFunction) {
+        try {
+            const isValid = await this.verifyPinOrBiometric.execute(req.params.userId);
+            res.json({ success: true, valid: isValid });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async setupSecurityQuestion(req: Request, res: Response, next: NextFunction) {
+        try {
+            await this.securityQuestion.execute(req.params.userId, req.body.questionId, req.body.answer);
+            res.json({ success: true });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async setup2faAuth(req: Request, res: Response, next: NextFunction) {
+        try {
+            const data = await this.set2faAuth.execute(req.params.userId);
+            res.json({ success: true, data });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async verify2FaAuth(req: Request, res: Response, next: NextFunction) {
+        try {
+            const isValid = await this.verify2faAuth.execute(req.params.userId, req.body.token);
+            res.json({ success: true, valid: isValid });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

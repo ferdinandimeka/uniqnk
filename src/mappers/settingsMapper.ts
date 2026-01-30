@@ -18,6 +18,10 @@ export function mapSettings(doc: any): Settings {
       profileVisibility: settings.profile?.profileVisibility ?? "public",
     },
     {
+      biometricEnabled: settings.login?.biometricEnabled ?? false,
+      pinEnabled: settings.login?.pinEnabled ?? false, 
+    },
+    {
       email: {
         feedbackEmails: settings.notifications?.email?.feedbackEmails ?? true,
         reminderEmails: settings.notifications?.email?.reminderEmails ?? true,
@@ -36,9 +40,19 @@ export function mapSettings(doc: any): Settings {
       sound: settings.notifications?.sound ?? true,
       vibration: settings.notifications?.vibration ?? true,
     },
-
     {
       twoFactorAuth: settings.security?.twoFactorAuth ?? false,
+      securityQuestionEnabled: settings.security?.securityQuestionEnabled ?? false,
+      securityQuestion: settings.security?.securityQuestion ?? {
+        questionId: "",
+        answerHash: ""
+      },
+      twoFactorEnabled: settings.security?.twoFactorEnabled ?? false,
+      twoFactorMethods: {
+        authenticator: settings.security?.twoFactorMethods?.authenticator ?? false,
+        sms: settings.security?.twoFactorMethods?.sms ?? false,
+        email: settings.security?.twoFactorMethods?.email ?? false,
+      },
       loginAlerts: settings.security?.loginAlerts ?? true,
       authorizedDevices: settings.security?.authorizedDevices ?? [],
     },

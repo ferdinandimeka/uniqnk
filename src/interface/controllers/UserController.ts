@@ -7,6 +7,9 @@ import { GetAllUsers } from '../../use-cases/user/getAllUsers';
 import { DeleteUser } from '../../use-cases/user/deleteUser';
 import { FollowUser } from '../../use-cases/user/follow';
 import { UnfollowUser } from '../../use-cases/user/unfollow';
+import { ChangePassword } from '../../use-cases/user/changePassword';
+import { SetTransactionalPin } from '../../use-cases/user/setTransactionalPin';
+import { VerifyTransactionalPin } from '../../use-cases/user/verifyTransactionalPin';
 import { validate } from "class-validator";
 import { plainToInstance } from "class-transformer";
 // import { CreateUserDto } from "../dto/UserResponseDto";
@@ -22,7 +25,10 @@ export class UserController {
         private updateUser: UpdateUser,
         private deleteUser: DeleteUser,
         private unfollowUser: UnfollowUser,
-        private followUser: FollowUser
+        private followUser: FollowUser,
+        private passwordChange: ChangePassword,
+        private setTransactionalPin: SetTransactionalPin,
+        private verifyTransactionalPin: VerifyTransactionalPin
     ) {}
     // private getAllUsers =  DIContainer.getGetAllUsersUseCase(); 
 
@@ -136,6 +142,42 @@ export class UserController {
 
             await this.unfollowUser.execute(userId, targetUserId);
             res.status(200).json({ message: 'Successfully unfollowed the user.' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async changePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.params.id;
+            const { currentPassword, newPassword } = req.body;
+
+            await this.passwordChange.execute(userId, currentPassword, newPassword);
+            res.status(200).json({ message: 'Password changed successfully.' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async setTransactionPin(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.params.id;
+            const { transactionalPin } = req.body;
+
+            await this.setTransactionalPin.execute(userId, transactionalPin);
+            res.status(200).json({ message: 'Transactional PIN set successfully.' });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async verifyTransactionPin(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const userId = req.params.id;
+            const { transactionalPin } = req.body;
+
+            const isValid = await this.verifyTransactionalPin.execute(userId, transactionalPin);
+            res.status(200).json({ valid: isValid });
         } catch (error) {
             next(error);
         }

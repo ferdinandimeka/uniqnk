@@ -8,6 +8,9 @@ import { DeleteUser } from "../../use-cases/user/deleteUser";
 import { GetUserById } from "../../use-cases/user/getUserById";
 import { FollowUser } from "../../use-cases/user/follow";
 import { UnfollowUser } from "../../use-cases/user/unfollow";
+import { ChangePassword } from "../../use-cases/user/changePassword";
+import { SetTransactionalPin } from "../../use-cases/user/setTransactionalPin";
+import { VerifyTransactionalPin } from "../../use-cases/user/verifyTransactionalPin";
 
 const router = Router();
 
@@ -19,6 +22,9 @@ const updateUser = new UpdateUser(userRepository);
 const deleteUser = new DeleteUser(userRepository);
 const followUser = new FollowUser(userRepository);
 const unfollowUser = new UnfollowUser(userRepository);
+const changePassword = new ChangePassword(userRepository);
+const setTransactionalPin = new SetTransactionalPin(userRepository);
+const verifyTransactionalPin = new VerifyTransactionalPin(userRepository);
 
 const userController = new UserController(
   getAllUsers,
@@ -27,7 +33,10 @@ const userController = new UserController(
   updateUser,
   deleteUser,
   unfollowUser,
-  followUser
+  followUser,
+  changePassword,
+  setTransactionalPin,
+  verifyTransactionalPin
 );
 
 /**
@@ -219,5 +228,113 @@ router.post("/:id/follow", (req, res, next) => userController.follow(req, res, n
  *         description: User not found
  */
 router.post("/:id/unfollow", (req, res, next) => userController.unfollow(req, res, next));
+
+/**
+ * @swagger
+ * /api/v1/users/{id}/change-password:
+ *   post:
+ *     summary: Change user password
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 example: "oldpassword123"
+ *               newPassword:
+ *                 type: string
+ *                 example: "newpassword456"
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *       400:
+ *         description: Invalid input or current password incorrect
+ *       404:
+ *         description: User not found
+ */
+router.post("/:id/change-password", (req, res, next) => userController.changePassword(req, res, next));
+
+/**
+ * @swagger
+ * /api/v1/users/{id}/set-transactional-pin:
+ *   post:
+ *     summary: Set transactional PIN for user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               transactionalPin:
+ *                 type: string
+ *                 example: "1234"
+ *     responses:
+ *       200:
+ *         description: Transactional PIN set successfully
+ *       400:
+ *         description: Invalid input
+ *       404:
+ *         description: User not found
+ */
+router.post("/:id/set-transactional-pin", (req, res, next) => userController.setTransactionPin(req, res, next));
+
+/**
+ * @swagger
+ * /api/v1/users/{id}/verify-transactional-pin:
+ *   post:
+ *     summary: Verify transactional PIN for user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               transactionalPin:
+ *                 type: string
+ *                 example: "1234"
+ *     responses:
+ *       200:
+ *         description: Transactional PIN verification result
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 valid:
+ *                   type: boolean
+ *                   example: true
+ *       400:
+ *         description: Invalid input
+ */
+router.post("/:id/verify-transactional-pin", (req, res, next) => userController.verifyTransactionPin(req, res, next));
 
 export { router as userRoutes };

@@ -7,6 +7,7 @@ export interface SettingsRepository {
     getByUserId(userId: string): Promise<Settings | null>;
     create(settings: Settings): Promise<Settings>;
     update(settings: Settings): Promise<void>;
+    verifyPinOrBiometric(userId: string): Promise<boolean>;
 
     // PROFILE
     updateProfilePreferences(
@@ -27,6 +28,17 @@ export interface SettingsRepository {
             "security"
         >>
     ): Promise<Settings>;
+
+    setupSecurityQuestion(
+        userId: string,
+        questionId: string,
+        answer: string
+    ): Promise<void>;
+
+    setup2FA(userId: string): Promise<{qrcode: string; secret: string}>;
+    verify2FA(userId: string, token: string): Promise<boolean>;
+
+    updateAuth(user: string, settings: Settings): Promise<Settings>;
 
     disableAccount(userId: string): Promise<Settings>;
     deleteAccount(userId: string): Promise<Settings>;

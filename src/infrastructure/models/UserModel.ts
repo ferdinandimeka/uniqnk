@@ -1,12 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
 import bcrypt from "bcryptjs";
-import { profile } from "console";
 
 interface IUserSettings {
     profile: {
         showActivityStatus: boolean;
         showLastSeen: boolean;
         profileVisibility: "public" | "followers" | "private";
+    };
+    login: {
+        biometricEnabled: boolean;
+        pinEnabled: boolean;
     };
     notifications: {
         likes: boolean;
@@ -29,7 +32,19 @@ interface IUserSettings {
         };
     };
     security: {
-        twoFactorAuth: boolean;
+        authenticatorSecret: string;
+        securityQuestionEnabled: boolean;
+        securityQuestion?: {
+            questionId: string;
+            answerHash: string;
+        };
+
+        twoFactorEnabled: boolean;
+        twoFactorMethods: {
+            authenticator: boolean;
+            sms: boolean;
+            email: boolean;
+        };
         loginAlerts: boolean;
         authorizedDevices: {
             device: string;
@@ -69,11 +84,20 @@ interface IUserSettings {
     };
 }
 
+interface TransactionPin {
+  pinHash: string;
+  pinSet: boolean;
+  pinUpdatedAt: Date;
+  failedAttempts: number;
+  lockedUntil?: Date;
+}
+
 interface IUser extends Document {
     fullName: string;
     email: string;
     username: string;
     password: string;
+    transactionalPin?: TransactionPin;
     profilePicture?: string;
     coverPhoto?: string;
     bio?: string;
@@ -114,7 +138,10 @@ const SettingsSchema = new Schema({
             default: "public"
         }
     },
-
+    login: {
+        biometricEnabled: { type: Boolean, default: false },
+        pinEnabled: { type: Boolean, default: false }
+    },
     notifications: {
         likes: { type: Boolean, default: true },
         comments: { type: Boolean, default: true },
@@ -138,16 +165,28 @@ const SettingsSchema = new Schema({
     },
 
     security: {
-        twoFactorAuth: { type: Boolean, default: false },
+        authenticatorSecret: { type: String, default: null },
+        securityQuestionEnabled: { type: Boolean, default: false },
+        securityQuestion: {
+            questionId: String,
+            answerHash: String
+        },
+
+        twoFactorEnabled: { type: Boolean, default: false },
+        twoFactorMethods: {
+            authenticator: { type: Boolean, default: false },
+            sms: { type: Boolean, default: false },
+            email: { type: Boolean, default: false }
+        },
         loginAlerts: { type: Boolean, default: true },
         authorizedDevices: [
-        {
-            device: String,
-            ip: String,
-            lastActive: Date
-        }
-    ]
-  },
+            {
+                device: String,
+                ip: String,
+                lastActive: Date
+            }
+        ]
+    },
 
     activity: {
         recentSearches: [String],
@@ -202,6 +241,13 @@ const UserSchema = new Schema({
     email: { type: String, required: true, unique: true },
     username: { type: String, required: true },
     password: { type: String, required: true },
+    transactionalPin: {
+        pinHash: { type: String, required: true },
+        pinSet: { type: Boolean, default: false },
+        pinUpdatedAt: { type: Date, default: Date.now },
+        failedAttempts: { type: Number, default: 0 },
+        lockedUntil: { type: Date }
+    },
 
     profilePicture: String,
     coverPhoto: String,

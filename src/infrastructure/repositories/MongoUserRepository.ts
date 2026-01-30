@@ -1,35 +1,9 @@
-// import { User } from "../../domain/entities/User";
-// import { UserRepository } from "../../domain/interfaces/userRepository";
-// import { UserModel } from "../models/UserModel";
-
-// export class MongoUserRepository implements UserRepository {
-//     async findAll(): Promise<User[]> {
-//         return await UserModel.find();
-//     }
-
-//     async findById(id: string): Promise<User | null> {
-//         return await UserModel.findById(id);
-//     }
-
-//     async create(user: User): Promise<User> {
-//         const newUser = new UserModel(user)
-//         await newUser.save();
-//         return newUser;
-//     }
-
-//     async update(user: User): Promise<void> {
-//         await UserModel.findByIdAndUpdate(user.id, user)
-//     }
-
-//     async delete(id: string): Promise<void> {
-//         await UserModel.findByIdAndDelete(id);
-//     }
-// }
-
+import bcrypt from "bcryptjs";
 import { User } from "../../domain/entities/User";
 import { UserRepository } from "../../domain/interfaces/userRepository";
 import { UserModel } from "../models/UserModel";
 import mongoose, {Types} from "mongoose"
+import { handleFailedPinAttempt } from "../../mappers/failedAttempt"
 
 export class MongoUserRepository implements UserRepository {
     async findAll(): Promise<User[]> {
@@ -107,6 +81,67 @@ export class MongoUserRepository implements UserRepository {
         await target.save();
     }
 
+    async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        // Here you would normally hash the passwords and compare hashes
+        if (user.password !== currentPassword) {
+            throw new Error("Current password is incorrect");
+        }
+
+        user.password = newPassword; // In real applications, hash the new password before saving
+        await user.save();
+    }
+
+    async setTransactionalPin(userId: string, transactionalPin: string): Promise<void> {
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        // hash pin before saving
+        const PIN_SALT_ROUNDS = 12;
+        // hash logic
+        const hashPin = (pin: string): Promise<string> => {
+            return bcrypt.hash(pin, PIN_SALT_ROUNDS);
+        }
+        user.transactionalPin = {
+            pinHash: await hashPin(transactionalPin),
+            pinSet: true,
+            pinUpdatedAt: new Date(),
+            failedAttempts: 0
+        };
+        await user.save();
+    }
+
+    async verifyTransactionalPin(userId: string, transactionalPin: string): Promise<boolean> {
+        const user = await UserModel.findById(userId);
+        if (!user) {
+            throw new Error("User not found");
+        }
+        const pinData = user?.transactionalPin;
+        if (!pinData?.pinSet) {
+            throw new Error("Transactional PIN not set");
+        }
+        // check lock
+        if (pinData.lockedUntil && new Date(pinData.lockedUntil) > new Date()) {
+            throw new Error("Transactional PIN is locked. Please try again later.");
+        }
+
+        const isMatch = await bcrypt.compare(transactionalPin, pinData.pinHash);
+        if (!isMatch) {
+            await handleFailedPinAttempt(userId, pinData);
+            return false;
+        }
+
+        await UserModel.updateOne({ _id: userId }, {
+            "transactionalPin.failedAttempts": 0,
+            "transactionalPin.lockedUntil": null
+        });
+        return true;
+    }
 
     private toUser(userDoc: any): User {
         const userObj = userDoc.toObject();

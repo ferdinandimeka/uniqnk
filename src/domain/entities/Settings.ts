@@ -16,6 +16,15 @@ export class Settings {
       profileVisibility: "public",
     },
 
+    //LOGIN
+    public login: {
+      biometricEnabled: boolean;
+      pinEnabled: boolean;
+    } = {
+      biometricEnabled: false,
+      pinEnabled: false,
+    },
+
     // NOTIFICATIONS
     public notifications: {
       likes: boolean;
@@ -58,6 +67,17 @@ export class Settings {
     // SECURITY
     public security: {
       twoFactorAuth: boolean;
+      securityQuestionEnabled: boolean;
+      securityQuestion?: {
+        questionId: string;
+        answerHash: string;
+      };
+      twoFactorEnabled: boolean;
+      twoFactorMethods: {
+        authenticator: boolean;
+        sms: boolean;
+        email: boolean;
+      };
       loginAlerts: boolean;
       authorizedDevices: {
         device: string;
@@ -66,6 +86,13 @@ export class Settings {
       }[];
     } = {
       twoFactorAuth: false,
+      securityQuestionEnabled: false,
+      twoFactorEnabled: false,
+      twoFactorMethods: {
+        authenticator: false,
+        sms: false,
+        email: false
+      },
       loginAlerts: true,
       authorizedDevices: [],
     },

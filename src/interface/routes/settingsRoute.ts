@@ -13,7 +13,11 @@ import { UpdateRestrictionSettings } from "../../use-cases/settings/updateRestri
 import { BlockUser } from "../../use-cases/settings/blockUser";
 import { UnBlockUser } from "../../use-cases/settings/unBlockUser";
 import { ReportProblem } from "../../use-cases/settings/reportProblem";
-
+import { UpdateAuthSettings } from "../../use-cases/settings/updateAuth";
+import { VerifyPinOrBiometric } from "../../use-cases/settings/verifyPinOrBiometric";
+import { SecurityQuestion } from "../../use-cases/settings/securityQuestion";
+import { Set2faAuth } from "../../use-cases/settings/2faAuth";
+import { Verify2faAuth } from "../../use-cases/settings/verify2faAuth";
 import { SettingsController } from "../controllers/SettingsController";
 
 const router = Router();
@@ -29,6 +33,11 @@ const updateRestrictions = new UpdateRestrictionSettings(settingsRepository);
 const blockUser = new BlockUser(settingsRepository);
 const unblockUser = new UnBlockUser(settingsRepository);
 const sendReport = new ReportProblem(settingsRepository);
+const updateAuth = new UpdateAuthSettings(settingsRepository);
+const verifyPinOrBiometric = new VerifyPinOrBiometric(settingsRepository);
+const securityQuestion = new SecurityQuestion(settingsRepository);
+const set2faAuth = new Set2faAuth(settingsRepository);
+const verify2faAuth = new Verify2faAuth(settingsRepository);
 
 // Controller
 const controller = new SettingsController(
@@ -41,6 +50,11 @@ const controller = new SettingsController(
     blockUser,
     unblockUser,
     sendReport,
+    updateAuth,
+    verifyPinOrBiometric,
+    securityQuestion,
+    set2faAuth,
+    verify2faAuth,
 );
 
 /**
@@ -381,6 +395,131 @@ router.post("/:userId/unblock", (req, res, next) =>
  */
 router.post("/:userId/report", (req, res, next) =>
     controller.reportProblem(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/auth:
+ *   put:
+ *     summary: Update authentication settings
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               twoFactorAuthEnabled:
+ *                 type: boolean
+ *                 example: true
+ *               password:
+ *                 type: string
+ *                 example: "newSecurePassword123"
+ *               emailVerificationRequired:
+ *                 type: boolean
+ *                 example: false
+ *     responses:
+ *       200:
+ *         description: Authentication settings updated successfully
+ */
+router.put("/:userId/biometric-auth", (req, res, next) =>
+    controller.updateAuthSettings(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/verify-pin-biometric:
+ *   get:
+ *     summary: Verify if user has PIN or biometric authentication enabled
+ *     tags: [Settings]
+ *     parameters:
+ *      - in: path
+ *        name: userId
+ *        required: true
+ *   responses:
+ *    200:
+ *    description: Verification result
+ */
+router.get("/:userId/verify-pin-biometric", (req, res, next) =>
+    controller.verifyPinOrBiometricHandler(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/2fa/verify:
+ *   post:
+ *     summary: Verify 2FA token
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: "123456"
+ */
+router.post("/:userId/2fa/verify", (req, res, next) =>
+    controller.verify2FaAuth(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/security-question:
+ *   post:
+ *     summary: Setup security question
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [questionId, answer]
+ *             properties:
+ *               questionId:
+ *                 type: string
+ *                 example: "pet"
+ *               answer:
+ *                 type: string
+ *                 example: "My favorite color is blue."
+ */
+router.post("/:userId/security-question", (req, res, next) =>
+    controller.setupSecurityQuestion(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/2fa/setup:
+ *   post:
+ *     summary: Setup 2FA for a user
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: 2FA setup successful
+ */
+router.post("/:userId/2fa/setup", (req, res, next) =>
+    controller.setup2faAuth(req, res, next)
 );
 
 export { router as settingsRoutes };
