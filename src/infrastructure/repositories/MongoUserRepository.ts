@@ -88,7 +88,8 @@ export class MongoUserRepository implements UserRepository {
         }
 
         // Here you would normally hash the passwords and compare hashes
-        if (user.password !== currentPassword) {
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
             throw new Error("Current password is incorrect");
         }
 
