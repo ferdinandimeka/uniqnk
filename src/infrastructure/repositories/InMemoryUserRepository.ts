@@ -79,4 +79,33 @@ export class InMemoryUserRepository implements UserRepository {
     await this.update(user);
     await this.update(targetUser);
   }
+
+  async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    if (user.password !== currentPassword) {
+      throw new Error("Current password is incorrect");
+    }
+    user.password = newPassword;
+    await this.update(user);
+  }
+
+  async setTransactionalPin(userId: string, transactionalPin: string): Promise<void> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    user.transactionalPin = transactionalPin;
+    await this.update(user);
+  }
+
+  async verifyTransactionalPin(userId: string, transactionalPin: string): Promise<boolean> {
+    const user = await this.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+    return user.transactionalPin === transactionalPin;
+  }
 }

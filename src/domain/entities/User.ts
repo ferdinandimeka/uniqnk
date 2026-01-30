@@ -8,5 +8,6 @@ export class User {
         public password: string,
         public followers: string[],
         public following: string[],
+        public transactionalPin?: string,
     ) {}
 }
