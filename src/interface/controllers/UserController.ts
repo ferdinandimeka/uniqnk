@@ -15,7 +15,7 @@ import { plainToInstance } from "class-transformer";
 // import { CreateUserDto } from "../dto/UserResponseDto";
 import { UserResponseDto } from "../dto/CreateUserDto";
 import { PostModel } from "../../infrastructure/models/PostModel"; // adjust relative path if needed
-// import { UserRepository } from "../../domain/interfaces/userRepository";
+import { getParam } from '../../utils/helper';
 
 export class UserController {
     constructor(
@@ -55,9 +55,9 @@ export class UserController {
             //     });
             //     return;
             // }
-
+            const userId = getParam(req.params.id);
             // 2️⃣ Create user (use-case returns a Mongoose doc or plain object)
-            const user = await this.createUser.execute(req.body, req.params.id);
+            const user = await this.createUser.execute(req.body, userId);
 
             // 3️⃣ Transform response using class-transformer
             const userResponse = plainToInstance(UserResponseDto, user, {
@@ -75,7 +75,7 @@ export class UserController {
     }
 
     async update(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const userId = req.params.id;
+        const userId = getParam(req.params.id);
         const user = await this.updateUser.execute(userId, req.body);
         if (!user) {
             res.status(404).json({ message: 'User not found' });
@@ -86,7 +86,7 @@ export class UserController {
 
     async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.params.id;
+            const userId = getParam(req.params.id);
 
             const user = await this.getUserByid.execute(userId);
             if (!user) {
@@ -117,7 +117,7 @@ export class UserController {
 
 
     async delUser(req: Request, res: Response, next: NextFunction): Promise<void> {
-        const userId = req.params.id;
+        const userId = getParam(req.params.id);
         await this.deleteUser.execute(userId);
         res.status(204).send();
         next();
@@ -125,7 +125,7 @@ export class UserController {
 
     async follow(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.params.id;
+            const userId = getParam(req.params.id);
             const targetUserId = req.body.targetUserId;
 
             await this.followUser.execute(userId, targetUserId);
@@ -137,7 +137,7 @@ export class UserController {
 
     async unfollow(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.params.id;
+            const userId = getParam(req.params.id);
             const targetUserId = req.body.targetUserId;
 
             await this.unfollowUser.execute(userId, targetUserId);
@@ -149,7 +149,7 @@ export class UserController {
 
     async changePassword(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.params.id;
+            const userId = getParam(req.params.id);
             const { currentPassword, newPassword } = req.body;
 
             await this.passwordChange.execute(userId, currentPassword, newPassword);
@@ -161,7 +161,7 @@ export class UserController {
 
     async setTransactionPin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.params.id;
+            const userId = getParam(req.params.id);
             const { transactionalPin } = req.body;
 
             await this.setTransactionalPin.execute(userId, transactionalPin);
@@ -173,7 +173,7 @@ export class UserController {
 
     async verifyTransactionPin(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const userId = req.params.id;
+            const userId = getParam(req.params.id);
             const { transactionalPin } = req.body;
 
             const isValid = await this.verifyTransactionalPin.execute(userId, transactionalPin);

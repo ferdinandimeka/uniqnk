@@ -42,7 +42,7 @@ export class MongoCommentRepository implements CommentRepository {
       content,
       parentComment: commentId,
     });
-    parentComment.replies.push(new Types.ObjectId(reply._id as string));
+    parentComment.replies.push(new Types.ObjectId(reply._id as unknown as string));
     await parentComment.save();
 
     // 4️⃣ Optionally update the post (if you want `num_comments` to increase)

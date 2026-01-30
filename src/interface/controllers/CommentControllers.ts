@@ -3,6 +3,7 @@ import { GetCommentByIdUseCase } from "../../use-cases/comment/getById";
 import { LikeCommentUseCase } from "../../use-cases/comment/likeComment";
 import { UnLikeCommentUseCase } from "../../use-cases/comment/unLikeComment";
 import { NextFunction, Request, Response } from 'express'
+import { getParam } from '../../utils/helper';
 
 export class CommentController {
   constructor(
@@ -15,7 +16,7 @@ export class CommentController {
 
   async replyToComment(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { commentId } = req.params; // parent comment
+      const commentId = getParam(req.params.id); // parent comment
       const { userId, postId, content } = req.body;
 
       const reply = await this.replyToCommentUseCase.execute(
@@ -39,7 +40,7 @@ export class CommentController {
 
   async getCommentById(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { commentId } = req.params;
+      const commentId = getParam(req.params.id);
       const comment = await this.getCommentByIdUseCase.execute(commentId);
       return res.status(200).json({
         success: true,
@@ -54,7 +55,7 @@ export class CommentController {
 
   async likeComment(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { commentId } = req.params;
+      const commentId = getParam(req.params.id);
       const { userId } = req.body;
       const updatedComment = await this.AddLikeCommentUseCase.execute(commentId, userId);
       return res.status(200).json({
@@ -71,7 +72,7 @@ export class CommentController {
 
   async unlikeComment(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { commentId } = req.params;
+      const commentId = getParam(req.params.id);
       const { userId } = req.body;
       const updatedComment = await this.unLikeCommentUseCase.execute(commentId, userId);
       return res.status(200).json({

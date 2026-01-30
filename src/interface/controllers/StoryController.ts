@@ -11,6 +11,7 @@ import { UpdateStory } from "../../use-cases/story/updateStory";
 import { MarkStoryAsViewed } from "../../use-cases/story/markStoryAsViewed";
 import { NextFunction, Request, Response } from 'express';
 import { ApiResponse } from "../../utils/apiResponse";
+import { getParam } from '../../utils/helper';
 
 export class StoryController {
     constructor(
@@ -39,7 +40,7 @@ export class StoryController {
 
     async getStoryById(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { id } = req.params;
+            const id = getParam(req.params.id);
             const result = await this.getStoryByid.execute(id);
             res.status(200).json(new ApiResponse(200, result, "Story fetched successfully"));
         } catch (error) {
@@ -58,7 +59,7 @@ export class StoryController {
 
     async update(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { id } = req.params;
+            const id = getParam(req.params.id);;
             const result = await this.updateStory.execute(id, req.body);
             res.status(200).json(new ApiResponse(200, result, "Story updated successfully"));
         } catch (error) {
@@ -68,7 +69,7 @@ export class StoryController {
 
     async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { id } = req.params;
+            const id = getParam(req.params.id);;
             await this.deleteStory.execute(id);
             res.status(204).json(new ApiResponse(204, null, "Story deleted successfully"));
         } catch (error) {
@@ -87,7 +88,7 @@ export class StoryController {
 
     async addReaction(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { storyId } = req.params;
+            const storyId = getParam(req.params.id);;
             const { userId, reactionType } = req.body;
             const result = await this.addReactions.execute(storyId, userId, reactionType);
             res.status(200).json(new ApiResponse(200, result, "Reaction added successfully"));
@@ -98,7 +99,7 @@ export class StoryController {
 
     async removeReaction(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { storyId } = req.params;
+            const storyId = getParam(req.params.id);;
             const { userId } = req.body;
             const result = await this.removeReactions.execute(storyId, userId);
             res.status(200).json(new ApiResponse(200, result, "Reaction removed successfully"));
@@ -109,7 +110,7 @@ export class StoryController {
 
     async addViewer(req: Request, res: Response, next: NextFunction): Promise<void> {
         try{
-            const { storyId } = req.params;
+            const storyId = getParam(req.params.id);;
             const { userId } = req.body;
             const result = await this.addView.execute(storyId, userId)
             res.status(200).json(new ApiResponse(200, result, "View Added successfully"));
@@ -129,7 +130,7 @@ export class StoryController {
 
     async markStoryAsViewed(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
-            const { storyId } = req.params;
+            const storyId = getParam(req.params.id);;
             const { userId } = req.body;
             const result = await this.markStoryAsView.execute(storyId, userId);
             res.status(200).json(new ApiResponse(200, result, "Story marked as viewed successfully"));

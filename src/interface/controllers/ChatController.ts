@@ -12,6 +12,7 @@ import { MarkMessageAsRead } from "../../use-cases/chat/markMessageAsRead";
 import { SendMessage } from "../../use-cases/chat/sendMessage";
 import { emitSocketEvent } from "../../socket"; // ✅ Import Socket helper
 import { ChatEventEnum } from "../../constants"; // ✅ Socket event names
+import { getParam } from '../../utils/helper';
 
 export class ChatController {
     constructor(
@@ -87,7 +88,7 @@ export class ChatController {
   /** ✅ Get all messages in a chat */
   async getMessages(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { chatId } = req.params;
+      const chatId = getParam(req.params.id);
 
       if (!chatId) {
         return res.status(400).json({ message: "Chat ID is required" });
@@ -105,7 +106,7 @@ export class ChatController {
    /** ✅ Get all messages in a chat */
   async getAllMessages(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { chatId } = req.params;
+      const chatId = getParam(req.params.id);
 
       if (!chatId) {
         return res.status(400).json({ message: "Chat ID is required" });
@@ -123,7 +124,7 @@ export class ChatController {
   /** ✅ Get all chats for a user (with last message preview) */
   async getUserChats(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { userId } = req.params;
+      const userId = getParam(req.params.id);
 
       if (!userId) {
         return res.status(400).json({ message: "User ID is required" });
@@ -141,7 +142,7 @@ export class ChatController {
   /** ✅ Mark a message as read */
   async markAllMessageAsRead(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { chatId } = req.params;
+      const chatId = getParam(req.params.id);
 
       if (!chatId) {
         return res.status(400).json({ message: "Chat ID is required" });
@@ -166,7 +167,7 @@ export class ChatController {
   /** ✅ Delete a chat */
   async deleteChat(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { chatId } = req.params;
+      const chatId = getParam(req.params.id);
 
       if (!chatId) {
         return res.status(400).json({ message: "Chat ID is required" });
@@ -187,7 +188,8 @@ export class ChatController {
   /** ✅ Delete a message */
   async deleteMessage(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const { chatId, messageId } = req.params;
+      const chatId = getParam(req.params.chatId);
+      const messageId = getParam(req.params.messageId);
 
       if (!chatId || !messageId) {
         return res.status(400).json({ message: "Chat ID and Message ID are required" });

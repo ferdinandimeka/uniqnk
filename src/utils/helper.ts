@@ -89,3 +89,8 @@ export const getStaticFilePath = (req: { protocol: any; get: (arg0: string) => a
 export const getLocalPath = (fileName: any) => {
     return `${fileName}`;
 };
+
+export const getParam = (param?: string | string[]): string => {
+  if (!param) throw new Error("Missing route parameter");
+  return Array.isArray(param) ? param[0] : param;
+};
