@@ -92,9 +92,9 @@ export class MongoUserRepository implements UserRepository {
         if (!isMatch) {
             throw new Error("Current password is incorrect");
         }
-
-        user.password = newPassword; // In real applications, hash the new password before saving
-        await user.save();
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt); // In real applications, hash the new password before saving
+        await user.save({ validateBeforeSave: false });
     }
 
     async setTransactionalPin(userId: string, transactionalPin: string): Promise<void> {
