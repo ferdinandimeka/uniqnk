@@ -89,11 +89,12 @@ export class MongoUserRepository implements UserRepository {
 
         // Here you would normally hash the passwords and compare hashes
         const isMatch = await bcrypt.compare(currentPassword, user.password);
+        console.log("Password match:", isMatch);
+        console.log("user Password:", user.password);
         if (!isMatch) {
             throw new Error("Current password is incorrect");
         }
-        const salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(newPassword, salt); // In real applications, hash the new password before saving
+        user.password = newPassword
         await user.save({ validateBeforeSave: false });
     }
 
