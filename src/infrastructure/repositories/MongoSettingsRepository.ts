@@ -79,6 +79,11 @@ export class MongoSettingsRepository implements SettingsRepository {
     }
 
     async updateAuth(userId: string, settings: Settings): Promise<Settings> {
+        const docs = await UserModel.findById(userId);
+        console.log("doc: ", docs)
+        if (!docs) {
+            throw new Error("User not found");
+        }
         if (!settings || Object.keys(settings).length === 0) {
             throw new Error("No fields to update");
         }

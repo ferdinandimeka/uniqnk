@@ -399,7 +399,7 @@ router.post("/:userId/report", (req, res, next) =>
 
 /**
  * @swagger
- * /api/v1/settings/{userId}/auth:
+ * /api/v1/settings/{userId}/biometric-auth:
  *   put:
  *     summary: Update authentication settings
  *     tags: [Settings]

@@ -37,7 +37,7 @@ export class SettingsController {
 
     async getSettings(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.getUserSettings.execute(userId);
             res.json({ success: true, data });
         } catch (error) {
@@ -47,7 +47,7 @@ export class SettingsController {
 
     async updateProfileSettings(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.updateProfile.execute(userId, req.body);
             res.json({ success: true, data });
         } catch (error) {
@@ -57,7 +57,7 @@ export class SettingsController {
 
     async updateNotificationSettings(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.updateNotifications.execute(userId, req.body);
             res.json({ success: true, data });
         } catch (error) {
@@ -67,7 +67,7 @@ export class SettingsController {
 
     async updatePrivacySettings(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.updatePrivacy.execute(userId, req.body);
             res.json({ success: true, data });
         } catch (error) {
@@ -77,7 +77,7 @@ export class SettingsController {
 
     async updateSecuritySettings(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.updateSecurity.execute(userId, req.body);
             res.json({ success: true, data });
         } catch (error) {
@@ -87,7 +87,7 @@ export class SettingsController {
 
     async updateRestrictions(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.updateRestriction.execute(userId, req.body);
             res.json({ success: true, data });
         } catch (error) {
@@ -97,7 +97,7 @@ export class SettingsController {
 
     async blockUserHandler(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.blockUser.execute(userId, req.body.blockUserId);
             res.json({ success: true, data });
         } catch (error) {
@@ -107,7 +107,7 @@ export class SettingsController {
 
     async unblockUserHandler(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.unblockUser.execute(userId, req.body.unblockUserId);
             res.json({ success: true, data });
         } catch (error) {
@@ -117,7 +117,7 @@ export class SettingsController {
 
     async reportProblem(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.sendReport.execute(userId, req.body.message);
             res.json({ success: true, data });
         } catch (error) {
@@ -127,7 +127,7 @@ export class SettingsController {
 
     async updateAuthSettings(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.updateAuth.execute(userId, req.body);
             res.json({ success: true, data });
         } catch (error) {
@@ -137,7 +137,7 @@ export class SettingsController {
 
     async verifyPinOrBiometricHandler(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const isValid = await this.verifyPinOrBiometric.execute(userId);
             res.json({ success: true, valid: isValid });
         } catch (error) {
@@ -147,7 +147,7 @@ export class SettingsController {
 
     async setupSecurityQuestion(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             await this.securityQuestion.execute(userId, req.body.questionId, req.body.answer);
             res.json({ success: true });
         } catch (error) {
@@ -157,7 +157,7 @@ export class SettingsController {
 
     async setup2faAuth(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const data = await this.set2faAuth.execute(userId);
             res.json({ success: true, data });
         } catch (error) {
@@ -167,7 +167,7 @@ export class SettingsController {
 
     async verify2FaAuth(req: Request, res: Response, next: NextFunction) {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.userId);
             const isValid = await this.verify2faAuth.execute(userId, req.body.token);
             res.json({ success: true, valid: isValid });
         } catch (error) {
