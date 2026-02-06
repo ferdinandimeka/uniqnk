@@ -35,7 +35,7 @@ export class MongoAuthRepository implements AuthRepository {
 
         // const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new UserModel({ fullName, username, phone, email, password });
-        await newUser.save();
+        await newUser.save({ validateBeforeSave: false });
     }
 
     async verifyPassword(email: string, password: string): Promise<boolean> {
