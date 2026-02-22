@@ -19,6 +19,10 @@ import { SecurityQuestion } from "../../use-cases/settings/securityQuestion";
 import { Set2faAuth } from "../../use-cases/settings/2faAuth";
 import { Verify2faAuth } from "../../use-cases/settings/verify2faAuth";
 import { SettingsController } from "../controllers/SettingsController";
+import {  EnableAccount } from "../../use-cases/settings/enableAccount";
+import { DisableAccount } from "../../use-cases/settings/disableAccount";
+import { DeactivateAccount } from "../../use-cases/settings/deactivateAccount";
+import { ReactivateAccount } from "../../use-cases/settings/activateAccount";
 
 const router = Router();
 const settingsRepository = new MongoSettingsRepository();
@@ -38,6 +42,10 @@ const verifyPinOrBiometric = new VerifyPinOrBiometric(settingsRepository);
 const securityQuestion = new SecurityQuestion(settingsRepository);
 const set2faAuth = new Set2faAuth(settingsRepository);
 const verify2faAuth = new Verify2faAuth(settingsRepository);
+const enableAccount = new EnableAccount(settingsRepository);
+const disableAccount = new DisableAccount(settingsRepository);
+const deactivateAccount = new DeactivateAccount(settingsRepository);
+const reactivateAccount = new ReactivateAccount(settingsRepository);
 
 // Controller
 const controller = new SettingsController(
@@ -55,6 +63,10 @@ const controller = new SettingsController(
     securityQuestion,
     set2faAuth,
     verify2faAuth,
+    enableAccount,
+    disableAccount,
+    deactivateAccount,
+    reactivateAccount
 );
 
 /**
@@ -283,12 +295,12 @@ router.put("/:userId/security", (req, res, next) =>
  *           schema:
  *             type: object
  *             properties:
- *               blockedUsers:
- *                 type: array
- *                 items:
- *                   type: string
- *                 example: ["67283289bd83298bd123aa"]
- *               restrictedMode:
+ *               reason:
+ *                 required: false 
+ *                 type: string
+ *                 example: "User is being abusive"
+ *               bool:
+ *                 required: true
  *                 type: boolean
  *                 example: false
  *     responses:
@@ -520,6 +532,100 @@ router.post("/:userId/security-question", (req, res, next) =>
  */
 router.post("/:userId/2fa/setup", (req, res, next) =>
     controller.setup2faAuth(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/enable-account:
+ *   post:
+ *     summary: Enable user account
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Account enabled successfully
+ */
+router.post("/:userId/enable-account", (req, res, next) =>
+    controller.enableAccountHandler(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/disable-account:
+ *   post:
+ *     summary: Disable user account with reason
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *        application/json:
+ *          schema:
+ *           type: object
+ *           required: [reason]
+ *           properties:
+ *             reason:
+ *               type: string
+ *               example: "User requested account disable due to privacy concerns."
+ *     responses:
+ *           200:
+ *             description: Account disabled successfully
+ */
+router.post("/:userId/disable-account", (req, res, next) =>
+    controller.disableAccountHandler(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/deactivate-account:
+ *   post:
+ *     summary: Deactivate user account
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [reason]
+ *             properties:
+ *               reason:
+ *                 type: string
+ *                 example: "User requested account deactivation."
+ *     responses:
+ *           200:
+ *             description: Account deactivated successfully
+ */
+router.post("/:userId/deactivate-account", (req, res, next) =>
+    controller.deactivateAccountHandler(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/reactivate-account:
+ *   post:
+ *     summary: Reactivate user account
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     responses:
+ *       200:
+ *        description: Account reactivated successfully
+ */
+router.post("/:userId/reactivate-account", (req, res, next) =>
+    controller.reactivateAccountHandler(req, res, next)
 );
 
 export { router as settingsRoutes };

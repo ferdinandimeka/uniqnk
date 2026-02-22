@@ -15,6 +15,10 @@ import { VerifyPinOrBiometric } from "../../use-cases/settings/verifyPinOrBiomet
 import { SecurityQuestion } from "../../use-cases/settings/securityQuestion";
 import { Set2faAuth } from "../../use-cases/settings/2faAuth";
 import { Verify2faAuth } from "../../use-cases/settings/verify2faAuth";
+import { EnableAccount } from "../../use-cases/settings/enableAccount";
+import { DisableAccount } from "../../use-cases/settings/disableAccount";
+import { DeactivateAccount } from "../../use-cases/settings/deactivateAccount";
+import { ReactivateAccount } from "../../use-cases/settings/activateAccount";
 import { getParam } from '../../utils/helper';
 
 export class SettingsController {
@@ -33,6 +37,10 @@ export class SettingsController {
         private securityQuestion: SecurityQuestion,
         private set2faAuth: Set2faAuth,
         private verify2faAuth: Verify2faAuth,
+        private enableAccount: EnableAccount,
+        private disableAccount: DisableAccount,
+        private deactivateAccount: DeactivateAccount,
+        private reactivateAccount: ReactivateAccount
     ) {}
 
     async getSettings(req: Request, res: Response, next: NextFunction) {
@@ -68,7 +76,7 @@ export class SettingsController {
     async updatePrivacySettings(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = getParam(req.params.userId);
-            const data = await this.updatePrivacy.execute(userId, req.body);
+            const data = await this.updatePrivacy.execute(userId, req.body.status);
             res.json({ success: true, data });
         } catch (error) {
             next(error);
@@ -88,7 +96,7 @@ export class SettingsController {
     async updateRestrictions(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = getParam(req.params.userId);
-            const data = await this.updateRestriction.execute(userId, req.body);
+            const data = await this.updateRestriction.execute(userId, req.body.reason, req.body.bool);
             res.json({ success: true, data });
         } catch (error) {
             next(error);
@@ -170,6 +178,46 @@ export class SettingsController {
             const userId = getParam(req.params.userId);
             const isValid = await this.verify2faAuth.execute(userId, req.body.token);
             res.json({ success: true, valid: isValid });
+        } catch (error) {
+            next(error);
+        }
+    }
+    
+    async enableAccountHandler(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = getParam(req.params.userId);
+            const data = await this.enableAccount.execute(userId);
+            res.json({ success: true, data });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async disableAccountHandler(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = getParam(req.params.userId);
+            const data = await this.disableAccount.execute(userId, req.body.reason);
+            res.json({ success: true, data });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deactivateAccountHandler(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = getParam(req.params.userId);
+            const data = await this.deactivateAccount.execute(userId, req.body.reason);
+            res.json({ success: true, data });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async reactivateAccountHandler(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = getParam(req.params.userId);
+            const data = await this.reactivateAccount.execute(userId);
+            res.json({ success: true, data });
         } catch (error) {
             next(error);
         }

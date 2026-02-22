@@ -40,15 +40,15 @@ export interface SettingsRepository {
 
     updateAuth(user: string, settings: Settings): Promise<Settings>;
 
-    disableAccount(userId: string): Promise<Settings>;
-    deleteAccount(userId: string): Promise<Settings>;
+    disableAccount(userId: string, reason: string): Promise<Settings>;
+    enableAccount(userId: string): Promise<Settings>;
+    deactivateAccount(userId: string, reason: string): Promise<Settings>;
+    reactivateAccount(userId: string): Promise<Settings>;
 
     // PRIVACY
     updatePrivacySettings(
         userId: string,
-        prefs: Partial<Pick<Settings,
-            "privacy"
-        >>
+        status: boolean
     ): Promise<Settings>;
 
     blockUser(userId: string, blockedId: string): Promise<Settings>;
@@ -57,7 +57,8 @@ export interface SettingsRepository {
     // RESTRICTIONS
     updateRestrictions(
         userId: string,
-        prefs: Partial<Pick<Settings, "restrictions">>
+        reason: string,
+        bool: boolean,
     ): Promise<Settings>;
 
     // SUPPORT

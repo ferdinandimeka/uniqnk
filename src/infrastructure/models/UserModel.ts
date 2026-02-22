@@ -62,9 +62,29 @@ interface IUserSettings {
         }[];
     };
     privacy: {
+        isPrivateAccount: boolean;
+        // Users explicitly allowed even if not followers
+        permittedViewers: mongoose.Types.ObjectId[];
         allowTagsFrom: "everyone" | "followers" | "no_one";
         allowMessagesFrom: "everyone" | "followers";
         dataDownload: boolean;
+    };
+    accountStatus: {
+        isActive: boolean;
+        isDisabled: boolean;
+        isDeactivated: boolean;
+
+        disabledAt?: Date;
+        disbledReason?: string;
+
+        deactivatedAt?: Date;
+        deactivationReason?: string;
+    };
+    accountRestriction: {
+        isRestricted: boolean;
+        restrictedAt?: Date;
+        restrictedReason?: string;
+        restrictedBy?: "user" | "admin" | "fraud_engine";
     };
     restrictions: {
         mutedUsers: mongoose.Types.ObjectId[];
@@ -125,6 +145,10 @@ interface IUser extends Document {
     createdAt: Date;
     updatedAt: Date;
 
+    canLogin(): boolean;
+    canTransact(): boolean;
+    canBeViewedBy(viewerId?: mongoose.Types.ObjectId): boolean;
+    isFollower(userId: mongoose.Types.ObjectId): boolean;
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -201,6 +225,8 @@ const SettingsSchema = new Schema({
     },
 
     privacy: {
+        isPrivateAccount: { type: Boolean, default: false },
+        permittedViewers: [{ type: Schema.Types.ObjectId, ref: "User" }],
         allowTagsFrom: {
             type: String,
             enum: ["everyone", "followers", "no_one"],
@@ -212,6 +238,28 @@ const SettingsSchema = new Schema({
             default: "everyone"
         },
         dataDownload: { type: Boolean, default: false }
+    },
+
+    accountStatus: {
+        isActive: { type: Boolean, default: true },
+
+        isDisabled: { type: Boolean, default: false },
+        disabledAt: { type: Date },
+        disabledReason: { type: String },
+
+        isDeactivated: { type: Boolean, default: false },
+        deactivatedAt: { type: Date },
+        deactivationReason: { type: String }
+    },
+
+    accountRestriction: {
+        isRestricted: { type: Boolean, default: false },
+        restrictedAt: { type: Date },
+        restrictedReason: { type: String },
+        restrictedBy: {
+            type: String,
+            enum: ["user", "admin", "fraud_engine"]
+        }
     },
 
     restrictions: {
@@ -284,6 +332,57 @@ UserSchema.pre<IUser>("save", async function (next) {
 
 UserSchema.methods.comparePassword = async function (candidatePassword: string) {
     return await bcrypt.compare(candidatePassword, this.password);
+};
+
+UserSchema.methods.isFollower = function (viewerId?: mongoose.Types.ObjectId): boolean {
+    return this.followers.some((followerId: mongoose.Types.ObjectId) => followerId.equals(viewerId));
+}
+
+UserSchema.methods.canBeViewedBy = function (viewerId?: mongoose.Types.ObjectId): boolean {
+    // Owner can always view
+    if (!viewerId || this._id.equals(viewerId)) {
+        return true;
+    }
+    const privacy = this.settings.privacy;
+
+    // Public account
+    if (!privacy.isPrivateAccount) return true;
+
+    // Explicitly permitted
+    if (privacy.permittedViewers.some((id: mongoose.Types.ObjectId) => id.equals(viewerId))) {
+        return true;
+    }
+
+    // Disabled or deactivated accounts are hidden from others
+    if (
+        this.accountStatus.isDisabled || this.accountStatus.isDeactivated
+    ) {
+        return viewerId ? this._id.equals(viewerId) : false;
+    }
+
+    // Followers allowed
+    return this.isFollower(viewerId);
+}
+
+UserSchema.methods.canLogin = function (): boolean {
+    if (!this.accountStatus.isActive) return false;
+    if (this.accountStatus.isDisabled) return false;
+    if (this.accountStatus.isDeactivated) return false;
+    return true;
+};
+
+UserSchema.methods.canTransact = function (): boolean {
+    const restriction = this.settings.accountRestriction;
+    const status = this.settings.accountStatus;
+
+    // Hard blocks
+    if (status.isDisabled) return false;
+    if (status.isDeactivated) return false;
+
+    // Emergency restriction
+    if (restriction?.isRestricted) return false;
+
+    return true;
 };
 
 const UserModel = mongoose.model<IUser>("User", UserSchema);

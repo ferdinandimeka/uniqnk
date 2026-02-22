@@ -143,28 +143,57 @@ export class MongoSettingsRepository implements SettingsRepository {
         return mapSettings(doc);
     }
 
-    async disableAccount(userId: string): Promise<Settings> {
-        const doc = await UserModel.findOneAndUpdate(
-            { userId },
-            { $set: { accountDisabled: true } },
+    async disableAccount(userId: string, reason: string): Promise<Settings> {
+        const doc = await UserModel.findByIdAndUpdate(
+            userId,
+            { $set: { "settings.accountStatus.isDisabled": true,
+                "settings.accountStatus.disabledAt": new Date(),
+                "settings.accountStatus.disabledReason": reason
+             } },
+            { new: true }
+        );
+        return mapSettings(doc);
+    }
+    
+    async enableAccount(userId: string): Promise<Settings> {
+        const doc = await UserModel.findByIdAndUpdate(
+            userId,
+            { $set: { "settings.accountStatus.isDisabled": false,
+                "settings.accountStatus.disabledAt": null,
+                "settings.accountStatus.disabledReason": null
+             } },
             { new: true }
         );
         return mapSettings(doc);
     }
 
-    async deleteAccount(userId: string): Promise<Settings> {
-        const doc = await UserModel.findOneAndUpdate(
-            { userId },
-            { $set: { accountDeleted: true } },
+    async reactivateAccount(userId: string): Promise<Settings> {
+        const doc = await UserModel.findByIdAndUpdate(
+            userId,
+            { $set: { "settings.accountStatus.isDeactivated": false,
+                "settings.accountStatus.deactivatedAt": null,
+                "settings.accountStatus.deactivationReason": null
+             } },
             { new: true }
         );
         return mapSettings(doc);
     }
 
-    async updatePrivacySettings(userId: string, prefs: Partial<Settings>): Promise<Settings> {
-        const doc = await UserModel.findOneAndUpdate(
-            { userId },
-            { $set: prefs },
+    async deactivateAccount(userId: string, reason: string): Promise<Settings> {
+        const doc = await UserModel.findByIdAndUpdate(
+            userId,
+            { $set: { "settings.accountStatus.isDeactivated": true,
+                "settings.accountStatus.deactivatedAt": new Date(),
+                "settings.accountStatus.deactivationReason": reason
+             } },
+            { new: true }
+        );
+        return mapSettings(doc);
+    }
+
+    async updatePrivacySettings(userId: string, status: boolean): Promise<Settings> {
+        const doc = await UserModel.findByIdAndUpdate(userId,
+            { $set: { "settings.privacy.isPrivateAccount": status } },
             { new: true }
         );
         return mapSettings(doc);
@@ -197,12 +226,30 @@ export class MongoSettingsRepository implements SettingsRepository {
     //     return mapSettings(doc);
     // }
 
-    async updateRestrictions(userId: string, prefs: Partial<Settings>): Promise<Settings> {
-        const doc = await UserModel.findOneAndUpdate(
-            { userId },
-            { $set: prefs },
-            { new: true }
+   async updateRestrictions( userId: string, reason: string, bool: boolean ): Promise<Settings> {
+
+        const update: any = {
+            "settings.accountRestriction.isRestricted": bool
+        };
+
+        if (bool) {
+            update["settings.accountRestriction.restrictedAt"] = new Date();
+            update["settings.accountRestriction.restrictedReason"] = reason;
+        } else {
+            update["settings.accountRestriction.restrictedAt"] = null;
+            update["settings.accountRestriction.restrictedReason"] = null;
+        }
+
+        const doc = await UserModel.findByIdAndUpdate(
+            userId,
+            { $set: update },
+            { new: true, runValidators: true }
         );
+
+        if (!doc) {
+            throw new Error("User not found");
+        }
+
         return mapSettings(doc);
     }
 
@@ -218,8 +265,8 @@ export class MongoSettingsRepository implements SettingsRepository {
     }
 
     async reportMessage(userId: string, report: string): Promise<Settings> {
-        const doc = await UserModel.findOneAndUpdate(
-            { userId },
+        const doc = await UserModel.findByIdAndUpdate(
+            userId,
             { $set: { lastReportMessage: report } },
             { new: true }
         );
@@ -231,11 +278,9 @@ export class MongoSettingsRepository implements SettingsRepository {
 
         const qrcode = await QRCode.toDataURL(secret.otpauth_url || '');
 
-        await UserModel.findOneAndUpdate(
-            { userId },
-            { $set: { "settings.security.authenticatorSecret": secret.base32 } },
-            { new: true }
-        );
+        await UserModel.findByIdAndUpdate( userId, {
+            "settings.security.authenticatorSecret": secret.base32 
+        });
 
         return {
             qrcode,

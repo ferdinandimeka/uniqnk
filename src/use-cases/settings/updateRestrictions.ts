@@ -6,8 +6,9 @@ export class UpdateRestrictionSettings {
 
   async execute(
     userId: string,
-    data: Partial<Settings>
+    reason: string,
+    bool: boolean
   ): Promise<Settings> {
-    return this.settingsRepository.updateRestrictions(userId, data);
+    return this.settingsRepository.updateRestrictions(userId, reason, bool);
   }
 }
