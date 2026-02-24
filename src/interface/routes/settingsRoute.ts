@@ -225,15 +225,9 @@ router.put("/:userId/notifications", (req, res, next) =>
  *           schema:
  *             type: object
  *             properties:
- *               profileVisibility:
- *                 type: string
- *                 example: "friends_only"
- *               showActivityStatus:
+ *               status:
  *                 type: boolean
  *                 example: false
- *               showLastSeen:
- *                 type: boolean
- *                 example: true
  *     responses:
  *       200:
  *         description: Privacy settings updated
