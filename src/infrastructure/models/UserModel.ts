@@ -353,9 +353,11 @@ UserSchema.methods.canBeViewedBy = function (viewerId?: mongoose.Types.ObjectId)
         return true;
     }
 
+    const status = this.settings?.accountStatus;
+
     // Disabled or deactivated accounts are hidden from others
     if (
-        this.accountStatus.isDisabled || this.accountStatus.isDeactivated
+        status?.isDisabled || status?.isDeactivated
     ) {
         return viewerId ? this._id.equals(viewerId) : false;
     }
@@ -365,15 +367,24 @@ UserSchema.methods.canBeViewedBy = function (viewerId?: mongoose.Types.ObjectId)
 }
 
 UserSchema.methods.canLogin = function (): boolean {
-    if (!this.accountStatus.isActive) return false;
-    if (this.accountStatus.isDisabled) return false;
-    if (this.accountStatus.isDeactivated) return false;
+    const status = this.settings?.accountStatus;
+
+    // Safety fallback for legacy users
+    if (!status) return true;
+
+    if (!status.isActive) return false;
+    if (status.isDisabled) return false;
+    if (status.isDeactivated) return false;
+
     return true;
 };
 
 UserSchema.methods.canTransact = function (): boolean {
     const restriction = this.settings.accountRestriction;
     const status = this.settings.accountStatus;
+
+    // Block if account status missing (fail-safe)
+    if (!status) return false;
 
     // Hard blocks
     if (status.isDisabled) return false;
