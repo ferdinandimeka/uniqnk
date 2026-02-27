@@ -6,7 +6,8 @@ import { UpdateProfilePreferences } from "../../use-cases/settings/updateProfile
 import { UpdateNotificationSettings } from "../../use-cases/settings/updateNotification";
 import { UpdatePrivacySettings } from "../../use-cases/settings/updatePrivacy";
 import { UpdateSecuritySettings } from "../../use-cases/settings/updateSecurity";
-import { UpdateRestrictionSettings } from "../../use-cases/settings/updateRestrictions";
+import { RestrictAccount } from "../../use-cases/settings/restrictAccount";
+import { UnRestrictAccount } from "../../use-cases/settings/unRestrictAccount";
 import { BlockUser } from "../../use-cases/settings/blockUser";
 import { UnBlockUser } from "../../use-cases/settings/unBlockUser";
 import { ReportProblem } from "../../use-cases/settings/reportProblem";
@@ -28,7 +29,8 @@ export class SettingsController {
         private updateNotifications: UpdateNotificationSettings,
         private updatePrivacy: UpdatePrivacySettings,
         private updateSecurity: UpdateSecuritySettings,
-        private updateRestriction: UpdateRestrictionSettings,
+        private restrictAccount: RestrictAccount,
+        private unRestrictAccount: UnRestrictAccount,
         private blockUser: BlockUser,
         private unblockUser: UnBlockUser,
         private sendReport: ReportProblem,
@@ -93,10 +95,20 @@ export class SettingsController {
         }
     }
 
-    async updateRestrictions(req: Request, res: Response, next: NextFunction) {
+    async restrictAccounts(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = getParam(req.params.userId);
-            const data = await this.updateRestriction.execute(userId, req.body.reason, req.body.bool);
+            const data = await this.restrictAccount.execute(userId, req.body.reason);
+            res.json({ success: true, data });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async unRestrictAccounts(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = getParam(req.params.userId);
+            const data = await this.unRestrictAccount.execute(userId);
             res.json({ success: true, data });
         } catch (error) {
             next(error);

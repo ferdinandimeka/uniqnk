@@ -55,10 +55,13 @@ export interface SettingsRepository {
     unBlockUser(userId: string, blockedId: string): Promise<Settings>;
 
     // RESTRICTIONS
-    updateRestrictions(
+    restrictAccount(
         userId: string,
         reason: string,
-        bool: boolean,
+    ): Promise<Settings>;
+
+    unRestrictAccount(
+        userId: string,
     ): Promise<Settings>;
 
     // SUPPORT

@@ -226,24 +226,37 @@ export class MongoSettingsRepository implements SettingsRepository {
     //     return mapSettings(doc);
     // }
 
-   async updateRestrictions( userId: string, reason: string, bool: boolean ): Promise<Settings> {
+   async restrictAccount( userId: string, reason: string ): Promise<Settings> {
 
         const update: any = {
-            "settings.accountRestriction.isRestricted": bool
+            "settings.accountRestriction.isRestricted": true,
+            "settings.accountRestriction.restrictedAt": new Date(),
+            "settings.accountRestriction.restrictedReason": reason
         };
-
-        if (bool) {
-            update["settings.accountRestriction.restrictedAt"] = new Date();
-            update["settings.accountRestriction.restrictedReason"] = reason;
-        } else {
-            update["settings.accountRestriction.restrictedAt"] = null;
-            update["settings.accountRestriction.restrictedReason"] = null;
-        }
 
         const doc = await UserModel.findByIdAndUpdate(
             userId,
             { $set: update },
             { new: true, runValidators: true }
+        );
+
+        if (!doc) {
+            throw new Error("User not found");
+        }
+
+        return mapSettings(doc);
+    }
+
+    async unRestrictAccount( userId: string ): Promise<Settings> {
+
+        const doc = await UserModel.findByIdAndUpdate(
+            userId,
+            { $set: {
+                "settings.accountRestriction.isRestricted": false,
+                "settings.accountRestriction.restrictedAt": null,
+                "settings.accountRestriction.restrictedReason": null
+            }},
+            { new: true }
         );
 
         if (!doc) {

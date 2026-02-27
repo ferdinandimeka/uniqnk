@@ -9,7 +9,8 @@ import { UpdateProfilePreferences } from "../../use-cases/settings/updateProfile
 import { UpdateNotificationSettings } from "../../use-cases/settings/updateNotification";
 import { UpdatePrivacySettings } from "../../use-cases/settings/updatePrivacy";
 import { UpdateSecuritySettings } from "../../use-cases/settings/updateSecurity";
-import { UpdateRestrictionSettings } from "../../use-cases/settings/updateRestrictions";
+import { RestrictAccount } from "../../use-cases/settings/restrictAccount";
+import { UnRestrictAccount } from "../../use-cases/settings/unRestrictAccount";
 import { BlockUser } from "../../use-cases/settings/blockUser";
 import { UnBlockUser } from "../../use-cases/settings/unBlockUser";
 import { ReportProblem } from "../../use-cases/settings/reportProblem";
@@ -33,7 +34,8 @@ const updateProfile = new UpdateProfilePreferences(settingsRepository);
 const updateNotifications = new UpdateNotificationSettings(settingsRepository);
 const updatePrivacy = new UpdatePrivacySettings(settingsRepository);
 const updateSecurity = new UpdateSecuritySettings(settingsRepository);
-const updateRestrictions = new UpdateRestrictionSettings(settingsRepository);
+const restrictAccount = new RestrictAccount(settingsRepository);
+const unRestrictAccount = new UnRestrictAccount(settingsRepository);
 const blockUser = new BlockUser(settingsRepository);
 const unblockUser = new UnBlockUser(settingsRepository);
 const sendReport = new ReportProblem(settingsRepository);
@@ -54,7 +56,8 @@ const controller = new SettingsController(
     updateNotifications,
     updatePrivacy,
     updateSecurity,
-    updateRestrictions,
+    restrictAccount,
+    unRestrictAccount,
     blockUser,
     unblockUser,
     sendReport,
@@ -274,7 +277,7 @@ router.put("/:userId/security", (req, res, next) =>
 
 /**
  * @swagger
- * /api/v1/settings/{userId}/restrictions:
+ * /api/v1/settings/{userId}/restrict:
  *   put:
  *     summary: Update restriction settings (blocked accounts, limits)
  *     tags: [Settings]
@@ -293,16 +296,30 @@ router.put("/:userId/security", (req, res, next) =>
  *                 required: false 
  *                 type: string
  *                 example: "User is being abusive"
- *               bool:
- *                 required: true
- *                 type: boolean
- *                 example: false
  *     responses:
  *       200:
- *         description: Restriction settings updated
+ *         description: Restrict Account
  */
-router.put("/:userId/restrictions", (req, res, next) =>
-    controller.updateRestrictions(req, res, next)
+router.put("/:userId/restrict", (req, res, next) =>
+    controller.restrictAccounts(req, res, next)
+);
+
+/**
+ * @swagger
+ * /api/v1/settings/{userId}/restrict:
+ *   put:
+ *     summary: Update restriction settings (blocked accounts, limits)
+ *     tags: [Settings]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *     responses:
+ *       200:
+ *         description: Unrestrict Account
+ */
+router.put("/:userId/unrestrict", (req, res, next) =>
+    controller.unRestrictAccounts(req, res, next)
 );
 
 /**
