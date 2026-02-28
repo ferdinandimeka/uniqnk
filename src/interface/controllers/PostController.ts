@@ -55,7 +55,7 @@ export class PostController {
 
     async getPostsById(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const id = getParam(req.params.id);
+            const id = getParam(req.params.postId);
             const post = await this.getPostById.execute(id);
             if (!post) {
                 return res.status(404).json(new ApiResponse(404, null, "Post not found"));
@@ -68,7 +68,7 @@ export class PostController {
 
     async removeLikeFromPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const postId = getParam(req.params.id);
+            const postId = getParam(req.params.postId);
             const { userId } = req.body;
             const updatedPost = await this.removeLike.execute(postId, userId);
             if (!updatedPost) {
@@ -95,7 +95,7 @@ export class PostController {
     // }
     async addCommentToPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const postId = getParam(req.params.id);
+            const postId = getParam(req.params.postId);
             const { comment, userId } = req.body;
             // const userId = req.user?.id; // or however you attach user info
 
@@ -122,7 +122,7 @@ export class PostController {
 
     async addShareToPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const postId = getParam(req.params.id);
+            const postId = getParam(req.params.postId);
             const { userId } = req.body;
             const updatedPost = await this.addShare.execute(postId, userId);
             if (!updatedPost) {
@@ -136,7 +136,7 @@ export class PostController {
 
     async removeShareFromPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const postId = getParam(req.params.id);
+            const postId = getParam(req.params.postId);
             const { userId } = req.body;
             const updatedPost = await this.removeShare.execute(postId, userId);
             if (!updatedPost) {
@@ -150,7 +150,7 @@ export class PostController {
 
     async addReactionToPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const postId = getParam(req.params.id);
+            const postId = getParam(req.params.postId);
             const { reactionType } = req.body;
             const updatedPost = await this.addReaction.execute(postId, reactionType);
             if (!updatedPost) {
@@ -164,7 +164,7 @@ export class PostController {
 
     async removeReactionFromPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const postId = getParam(req.params.id);
+            const postId = getParam(req.params.postId);
             const { userId, reactionType } = req.body;
             const updatedPost = await this.removeReaction.execute(postId, userId, reactionType);
             if (!updatedPost) {
@@ -188,7 +188,7 @@ export class PostController {
 
     async updatePost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const id = getParam(req.params.id);
+            const id = getParam(req.params.postId);
             const post = req.body;
             const updatedPost = await this.updatePosts.execute(id, post);
             if (!updatedPost) {
@@ -202,7 +202,7 @@ export class PostController {
 
     async deletePost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const id = getParam(req.params.id);
+            const id = getParam(req.params.postId);
             await this.deletePosts.execute(id);
             return res.status(204).json(new ApiResponse(204, null, "Post deleted successfully"));
         } catch (error) {
@@ -222,7 +222,7 @@ export class PostController {
 
     async removeCommentFromPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const postId= getParam(req.params.id);
+            const postId= getParam(req.params.postId);
             const { commentId } = req.body;
             const updatedPost = await this.removeComment.execute(postId, commentId);
             if (!updatedPost) {
