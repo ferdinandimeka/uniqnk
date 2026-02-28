@@ -140,13 +140,13 @@ router.post("/", (req, res, next) => {
 
 /**
  * @swagger
- * /api/v1/posts/{id}:
+ * /api/v1/posts/{postId}:
  *   put:
  *     summary: Update a post by ID
  *     tags: [Posts]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: postId
  *         required: true
  *         schema:
  *           type: string
@@ -170,19 +170,19 @@ router.post("/", (req, res, next) => {
  *       404:
  *         description: Post not found
  */
-router.put("/:id", (req, res, next) => {
+router.put("/:postId", (req, res, next) => {
     postController.updatePost(req, res, next).catch(next);
 });
 
 /**
  * @swagger
- * /api/v1/posts/{id}:
+ * /api/v1/posts/{postId}:
  *   delete:
  *     summary: Delete a post by ID
  *     tags: [Posts]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: postId
  *         required: true
  *         schema:
  *           type: string
@@ -193,19 +193,19 @@ router.put("/:id", (req, res, next) => {
  *       404:
  *         description: Post not found
  */
-router.delete("/:id", (req, res, next) => {
+router.delete("/:postId", (req, res, next) => {
     postController.deletePost(req, res, next).catch(next);
 });
 
 /**
  * @swagger
- * /api/v1/posts/{id}:
+ * /api/v1/posts/{postId}:
  *   get:
  *     summary: Get a post by ID
  *     tags: [Posts]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: postId
  *         required: true
  *         schema:
  *           type: string
@@ -216,7 +216,7 @@ router.delete("/:id", (req, res, next) => {
  *       404:
  *         description: Post not found
  */
-router.get("/:id", (req, res, next) => {
+router.get("/:postId", (req, res, next) => {
     postController.getPostsById(req, res, next).catch(next);
 });
 
