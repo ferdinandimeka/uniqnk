@@ -40,8 +40,9 @@ export class PostController {
 
     async addLikeToPost(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const postId = getParam(req.params.id);
+            const postId = getParam(req.params.postId);
             const { userId } = req.body;
+            console.log("Adding like to post:", postId, "by user:", userId);
             const updatedPost = await this.addLike.execute(postId, userId);
             if (!updatedPost) {
                 return res.status(404).json(new ApiResponse(404, null, "Post not found"));

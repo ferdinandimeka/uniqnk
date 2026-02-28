@@ -271,7 +271,7 @@ router.get("/user/:userId", (req, res, next) => {
  *       200:
  *         description: Post liked
  */
-router.post("/:postId/like", async (req, res, next) => {
+router.post("/:postId/like-post", async (req, res, next) => {
     try {
         await postController.addLikeToPost(req, res, next);
     } catch (err) {
