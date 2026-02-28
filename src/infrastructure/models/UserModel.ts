@@ -290,7 +290,7 @@ const UserSchema = new Schema({
     username: { type: String, required: true },
     password: { type: String, required: true },
     transactionalPin: {
-        pinHash: { type: String, required: true },
+        pinHash: { type: String, required: false },
         pinSet: { type: Boolean, default: false },
         pinUpdatedAt: { type: Date, default: Date.now },
         failedAttempts: { type: Number, default: 0 },
