@@ -212,7 +212,7 @@ export class PostController {
 
     async getPostsByUserId(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
         try {
-            const userId = getParam(req.params.id);
+            const userId = getParam(req.params.postId);
             const posts = await this.getByUserId.execute(userId);
             return res.status(200).json(new ApiResponse(200, posts, "Posts fetched successfully"));
         } catch (error) {
