@@ -45,11 +45,15 @@ const commentController = new CommentController( replyToComment, getCommentById,
  *             type: object
  *             required:
  *               - userId
+ *               - postId
  *               - content
  *             properties:
  *               userId:
  *                 type: string
  *                 example: "user123"
+ *               postId: 
+ *                 type: string
+ *                 example: "post123"
  *               content:
  *                 type: string
  *                 example: "This is a reply to the comment."
