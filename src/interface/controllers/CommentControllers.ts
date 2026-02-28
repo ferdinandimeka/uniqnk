@@ -16,7 +16,7 @@ export class CommentController {
 
   async replyToComment(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const commentId = getParam(req.params.id); // parent comment
+      const commentId = getParam(req.params.commentId); // parent comment
       const { userId, postId, content } = req.body;
 
       const reply = await this.replyToCommentUseCase.execute(
@@ -40,7 +40,7 @@ export class CommentController {
 
   async getCommentById(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const commentId = getParam(req.params.id);
+      const commentId = getParam(req.params.commentId);
       const comment = await this.getCommentByIdUseCase.execute(commentId);
       return res.status(200).json({
         success: true,
@@ -72,7 +72,7 @@ export class CommentController {
 
   async unlikeComment(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const commentId = getParam(req.params.id);
+      const commentId = getParam(req.params.commentId);
       const { userId } = req.body;
       const updatedComment = await this.unLikeCommentUseCase.execute(commentId, userId);
       return res.status(200).json({
