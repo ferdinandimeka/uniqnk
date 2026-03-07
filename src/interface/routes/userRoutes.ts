@@ -1,5 +1,7 @@
+import { CreateOrAggregate } from './../../use-cases/notification/create';
 import { Router } from "express";
 import { MongoUserRepository } from "../../infrastructure/repositories/MongoUserRepository";
+import { NotificationRepository } from "../../infrastructure/repositories/MongoNotificationRepository";
 import { GetAllUsers } from "../../use-cases/user/getAllUsers";
 import { UserController } from "../controllers/UserController";
 import { CreateUser } from "../../use-cases/user/createUsers";
@@ -15,6 +17,7 @@ import { VerifyTransactionalPin } from "../../use-cases/user/verifyTransactional
 const router = Router();
 
 const userRepository = new MongoUserRepository();
+const notificationRepository = new NotificationRepository();
 const getAllUsers = new GetAllUsers(userRepository);
 const createUser = new CreateUser(userRepository);
 const getUserById = new GetUserById(userRepository);
@@ -25,6 +28,7 @@ const unfollowUser = new UnfollowUser(userRepository);
 const changePassword = new ChangePassword(userRepository);
 const setTransactionalPin = new SetTransactionalPin(userRepository);
 const verifyTransactionalPin = new VerifyTransactionalPin(userRepository);
+const createNotification = new CreateOrAggregate(notificationRepository);
 
 const userController = new UserController(
   getAllUsers,
@@ -36,7 +40,8 @@ const userController = new UserController(
   followUser,
   changePassword,
   setTransactionalPin,
-  verifyTransactionalPin
+  verifyTransactionalPin,
+  createNotification
 );
 
 /**

@@ -5,17 +5,22 @@ import { GetCommentByIdUseCase } from "../../use-cases/comment/getById";
 import { LikeCommentUseCase } from "../../use-cases/comment/likeComment";
 import { UnLikeCommentUseCase } from "../../use-cases/comment/unLikeComment";
 import { CommentController } from "../controllers/CommentControllers";
+import { NotificationRepository } from "../../infrastructure/repositories/MongoNotificationRepository";
+import { CreateOrAggregate } from "../../use-cases/notification/create"
 
 const router = Router();
 
 const commentRepository = new MongoCommentRepository();
+const notificationRepository = new NotificationRepository();
 // const createComment = new CreateComment(commentRepository);
 const replyToComment = new ReplyToCommentUseCase(commentRepository);
 const getCommentById = new GetCommentByIdUseCase(commentRepository);
 const likeComment = new LikeCommentUseCase(commentRepository);
 const unLikeComment = new UnLikeCommentUseCase(commentRepository);
+const createNotification = new CreateOrAggregate(notificationRepository);
 
-const commentController = new CommentController( replyToComment, getCommentById, likeComment, unLikeComment);
+const commentController = new CommentController( replyToComment, getCommentById, likeComment, unLikeComment, createNotification);
+
 
 /**
  * @swagger

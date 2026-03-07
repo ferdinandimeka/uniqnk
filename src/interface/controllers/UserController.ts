@@ -11,6 +11,7 @@ import { ChangePassword } from '../../use-cases/user/changePassword';
 import { SetTransactionalPin } from '../../use-cases/user/setTransactionalPin';
 import { VerifyTransactionalPin } from '../../use-cases/user/verifyTransactionalPin';
 import { validate } from "class-validator";
+import { CreateOrAggregate } from '../../use-cases/notification/create';
 import { plainToInstance } from "class-transformer";
 // import { CreateUserDto } from "../dto/UserResponseDto";
 import { UserResponseDto } from "../dto/CreateUserDto";
@@ -28,8 +29,10 @@ export class UserController {
         private followUser: FollowUser,
         private passwordChange: ChangePassword,
         private setTransactionalPin: SetTransactionalPin,
-        private verifyTransactionalPin: VerifyTransactionalPin
+        private verifyTransactionalPin: VerifyTransactionalPin,
+        private createNotification: CreateOrAggregate
     ) {}
+    
     // private getAllUsers =  DIContainer.getGetAllUsersUseCase(); 
 
     async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -129,6 +132,15 @@ export class UserController {
             const targetUserId = req.body.targetUserId;
 
             await this.followUser.execute(userId, targetUserId);
+            // add notification for the target user
+            await this.createNotification.execute(
+                targetUserId,
+                "follow",
+                userId,
+                "",
+                "",
+                `followed you`
+            );
             res.status(200).json({ message: 'Successfully followed the user.' });
         } catch (error) {
             next(error);
@@ -141,6 +153,15 @@ export class UserController {
             const targetUserId = req.body.targetUserId;
 
             await this.unfollowUser.execute(userId, targetUserId);
+            // add notification for the target user
+            await this.createNotification.execute(
+                targetUserId,
+                "unfollow",
+                userId,
+                "",
+                "",
+                `unfollowed you`
+            );
             res.status(200).json({ message: 'Successfully unfollowed the user.' });
         } catch (error) {
             next(error);

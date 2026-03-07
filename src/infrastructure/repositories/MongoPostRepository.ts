@@ -98,6 +98,7 @@ export class MongoPostRepository implements PostRepository {
             post.likes.push(new mongoose.Types.ObjectId(userId));
             await post.save();
         }
+        
         return this.toPost(post);
     }
 

@@ -2,6 +2,7 @@ import { ReplyToCommentUseCase } from "./../../use-cases/comment/replyToComment"
 import { GetCommentByIdUseCase } from "../../use-cases/comment/getById";
 import { LikeCommentUseCase } from "../../use-cases/comment/likeComment";
 import { UnLikeCommentUseCase } from "../../use-cases/comment/unLikeComment";
+import { CreateOrAggregate } from '../../use-cases/notification/create';
 import { NextFunction, Request, Response } from 'express'
 import { getParam } from '../../utils/helper';
 
@@ -11,7 +12,8 @@ export class CommentController {
     private replyToCommentUseCase: ReplyToCommentUseCase, 
     private getCommentByIdUseCase: GetCommentByIdUseCase,
     private AddLikeCommentUseCase: LikeCommentUseCase,
-    private unLikeCommentUseCase: UnLikeCommentUseCase
+    private unLikeCommentUseCase: UnLikeCommentUseCase,
+    private createNotification: CreateOrAggregate
   ) {}
 
   async replyToComment(req: Request, res: Response, next: NextFunction): Promise<Response> {
@@ -25,6 +27,19 @@ export class CommentController {
         postId,
         content
       );
+
+      // add notification for the original comment owner
+      const originalComment = await this.getCommentByIdUseCase.execute(commentId);
+      if (reply && originalComment && originalComment.user !== userId) {
+        await this.createNotification.execute(
+          originalComment.user.toString(),
+          "reply",
+          userId,
+          postId,
+          reply._id.toString(),
+          `replied to your comment`
+        );
+      }
 
       return res.status(201).json({
         success: true,
@@ -58,6 +73,19 @@ export class CommentController {
       const commentId = getParam(req.params.id);
       const { userId } = req.body;
       const updatedComment = await this.AddLikeCommentUseCase.execute(commentId, userId);
+      // add notification for the comment owner
+      const comment = await this.getCommentByIdUseCase.execute(commentId);
+      if (comment && comment.user !== userId) {
+        await this.createNotification.execute(
+          comment.user.toString(),
+          "like",
+          userId,
+          "", // postId is optional here, can be added if available
+          commentId,
+          `liked your comment`
+        );
+      }
+
       return res.status(200).json({
         success: true,
         message: "Comment liked successfully",

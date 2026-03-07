@@ -16,6 +16,7 @@ import { GetByUserId } from "../../use-cases/post/getByUserId";
 import { RemoveComment } from "../../use-cases/post/removeComment";
 import { GetAllPosts } from "../../use-cases/post/getAllPost";
 import { GetPostById } from '../../use-cases/post/getPost';
+import { CreateOrAggregate } from '../../use-cases/notification/create';
 import { getParam } from '../../utils/helper';
 
 export class PostController {
@@ -35,6 +36,7 @@ export class PostController {
         private getRankedPostsUseCase: GetRankedPosts,
         private getAllPosts: GetAllPosts,
         private getPostById: GetPostById,
+        private createNotification: CreateOrAggregate,
         // Add other use-cases here as needed, e.g., createPost, updatePost, etc.
     ) {}
 
@@ -46,6 +48,11 @@ export class PostController {
             const updatedPost = await this.addLike.execute(postId, userId);
             if (!updatedPost) {
                 return res.status(404).json(new ApiResponse(404, null, "Post not found"));
+            }
+            // find post owner
+            const post = await this.getPostById.execute(postId);
+            if (post && post.user.toString() !== userId) {
+                await this.createNotification.execute(post.user, "like", userId, postId, undefined, "liked your post");
             }
             return res.status(200).json(new ApiResponse(200, updatedPost, "Like added successfully"));
         } catch (error) {
@@ -111,6 +118,12 @@ export class PostController {
 
             if (!updatedPost) {
                 return res.status(404).json(new ApiResponse(404, null, "Post not found"));
+            }
+
+            const post = await this.getPostById.execute(postId);
+
+            if (post && post.user.toString() !== userId) {
+                await this.createNotification.execute(post.user, "comment", userId, postId, "", `commented on your post`);
             }
 
             return res.status(200).json(new ApiResponse(200, updatedPost, "Comment added successfully"));

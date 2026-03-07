@@ -13,6 +13,7 @@ import { postRoutes } from "./interface/routes/postRoute";
 import { commentRoutes } from "./interface/routes/commentRoute";
 import { chatRoutes } from "./interface/routes/chatRoute";
 import { settingsRoutes } from "./interface/routes/settingsRoute";
+import { notificationRoutes } from "./interface/routes/notificationRoutes";
 import "./jobs/cleanup"; // Import the cleanup job
 import cors from 'cors';
 import dotenv from "dotenv";
@@ -85,6 +86,7 @@ app.use("/api/v1/posts", postRoutes)
 app.use("/api/v1/comments", commentRoutes)
 app.use("/api/v1/chat", chatRoutes)
 app.use("/api/v1/settings", settingsRoutes)
+app.use("/api/v1/notifications", notificationRoutes)
 
 const asyncHandler = (fn: RequestHandler): RequestHandler => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -170,6 +172,11 @@ io.on("connection", (socket) => {
   // Busy signal
   socket.on("busy", ({ to }) => {
     io.to(to).emit("user-busy");
+  });
+
+  // read notification 
+  socket.on("read-notification", ({ userId, notificationId }) => {
+    io.to(userId).emit("notification:read", { notificationId });
   });
 
   socket.on("disconnect", () => {

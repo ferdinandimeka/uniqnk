@@ -34,3 +34,9 @@ export enum ChatEventEnum {
 
 /** Union type of all valid chat event strings */
 export type AvailableChatEvents = `${ChatEventEnum}`;
+
+export enum NotificationEventEnum {
+  NOTIFICATION_NEW_EVENT = "notification:new",
+  NOTIFICATION_COUNT_EVENT = "notification:count",
+  NOTIFICATION_READ_EVENT = "notification:read",
+}

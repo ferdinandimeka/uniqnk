@@ -2,7 +2,9 @@ import cookie from "cookie";
 import jwt from "jsonwebtoken";
 import { Server, Socket } from "socket.io";
 import { ChatEventEnum } from "./constants";
+import { NotificationEventEnum } from "./constants";
 import { UserModel } from "./infrastructure/models/UserModel";
+import { NotificationModel } from "./infrastructure/models/NotificationModel";
 import { ApiError } from "./utils/apiError";
 import { Request } from "express";
 
@@ -132,6 +134,35 @@ const mountAudioCallEvent = (socket: AuthenticatedSocket) => {
   });
 };
 
+// Notification
+const mountNotificationEvents = (socket: AuthenticatedSocket) => {
+
+  /**
+   * Mark single notification as read
+   */
+  socket.on(
+    NotificationEventEnum.NOTIFICATION_READ_EVENT,
+    async ({ notificationId }) => {
+      if (!socket.user?._id) return;
+
+      await NotificationModel.findOneAndUpdate(
+        { _id: notificationId, user: socket.user._id },
+        { isRead: true }
+      );
+
+      const unreadCount = await NotificationModel.countDocuments({
+        user: socket.user._id,
+        isRead: false,
+      });
+
+      socket.emit(
+        NotificationEventEnum.NOTIFICATION_COUNT_EVENT,
+        unreadCount
+      );
+    }
+  );
+};
+
 // 🚀 --- Initialize Socket.IO ---
 const initializeSocketIO = (io: Server) => {
   io.on("connection", async (socket: AuthenticatedSocket) => {
@@ -176,6 +207,8 @@ const initializeSocketIO = (io: Server) => {
       mountVideoCallEvent(socket);
       mountAudioCallEvent(socket);
 
+      mountNotificationEvents(socket);
+
       socket.on(ChatEventEnum.DISCONNECT_EVENT, () => {
         console.log(`🚫 User disconnected: ${socket.user?._id}`);
         if (socket.user?._id) socket.leave(socket.user._id);
@@ -200,4 +233,27 @@ const emitSocketEvent = (
   io.in(roomId).emit(event, payload);
 };
 
-export { initializeSocketIO, emitSocketEvent };
+const emitNotificationEvent = async (
+  req: Request,
+  userId: string,
+  notification: any
+) => {
+  const io: Server = req.app.get("io");
+
+  const unreadCount = await NotificationModel.countDocuments({
+    user: userId,
+    isRead: false,
+  });
+
+  io.in(userId).emit(
+    NotificationEventEnum.NOTIFICATION_NEW_EVENT,
+    notification
+  );
+
+  io.in(userId).emit(
+    NotificationEventEnum.NOTIFICATION_COUNT_EVENT,
+    unreadCount
+  );
+};
+
+export { initializeSocketIO, emitSocketEvent, emitNotificationEvent };

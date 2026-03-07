@@ -1,6 +1,7 @@
 import { Router } from "express"
 import { MongoPostRepository } from "../../infrastructure/repositories/MongoPostRepository"
 import { MongoCommentRepository } from "../../infrastructure/repositories/MongoCommentRepository"
+import { NotificationRepository } from "../../infrastructure/repositories/MongoNotificationRepository";
 import { GetRankedPosts } from "../../use-cases/post/getRankPost"
 import { PostController } from "../controllers/PostController"
 import { AddLike } from "../../use-cases/post/addLike"
@@ -17,10 +18,12 @@ import { GetByUserId } from "../../use-cases/post/getByUserId"
 import { RemoveComment } from "../../use-cases/post/removeComment"
 import { GetAllPosts } from "../../use-cases/post/getAllPost"
 import { GetPostById } from "../../use-cases/post/getPost"
+import { CreateOrAggregate } from './../../use-cases/notification/create';
 
 const router = Router();
 const postRepository = new MongoPostRepository();
 const commentRepository = new MongoCommentRepository();
+const notificationRepository = new NotificationRepository();
 const getRankedPosts = new GetRankedPosts(postRepository);
 const addLike = new AddLike(postRepository);
 const removeLike = new RemoveLike(postRepository);
@@ -36,6 +39,7 @@ const removeComment = new RemoveComment(postRepository);
 const getByUserId = new GetByUserId(postRepository);
 const getAllPost = new GetAllPosts(postRepository);
 const getPostById = new GetPostById(postRepository);
+const createNotification = new CreateOrAggregate(notificationRepository);
 const postController = new PostController(
     addLike,
     removeLike,
@@ -52,6 +56,7 @@ const postController = new PostController(
     getRankedPosts,
     getAllPost,
     getPostById,
+    createNotification
 );
 
 /**
