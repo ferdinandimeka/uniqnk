@@ -157,4 +157,4 @@ router.put("/mark-all-as-read/:userId", (req, res, next) => notificationControll
  */
 router.delete("/delete-older-than/:date", (req, res, next) => notificationController.deleteOlderThan(req, res, next));
 
-export { useRouter as notificationRoutes }
+export { router as notificationRoutes }
