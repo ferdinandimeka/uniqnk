@@ -35,23 +35,36 @@ const notificationController = new NotificationController(
  *   description: API for managing user notifications
  */
 
+
 /**
  * @swagger
- * /api/v1/notifications:
- *   post:
- *     summary: Create or aggregate a notification
- *     description: Create a new notification or aggregate it with an existing one
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Notification'
- *     responses:
- *       201:
- *         description: Notification created or aggregated successfully
- *       400:
- *         description: Bad request
+ * components:
+ *   schemas:
+ *     Notification:
+ *       type: object
+ *       required:
+ *         - user
+ *         - type
+ *         - actor
+ *       properties:
+ *         user:
+ *           type: string
+ *           example: "665ab1234f9c123456789012"
+ *         type:
+ *           type: string
+ *           example: "like"
+ *         actor:
+ *           type: string
+ *           example: "665ab1234f9c123456789999"
+ *         post:
+ *           type: string
+ *           example: "665ab1234f9c123456789888"
+ *         comment:
+ *           type: string
+ *           example: "665ab1234f9c123456789777"
+ *         content:
+ *           type: string
+ *           example: "liked your post"
  */
 router.post("/", (req, res, next) => notificationController.createOrAggregate(req, res, next));
 
@@ -87,6 +100,18 @@ router.get("/unread-count/:userId", (req, res, next) => notificationController.g
  *         required: true
  *         schema:
  *           type: string
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           example: 20
  *     responses:
  *       200:
  *         description: User notifications retrieved successfully
