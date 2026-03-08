@@ -4,7 +4,7 @@ import { GetUserNotification } from "../../use-cases/notification/getUserNotific
 import { MarkAsRead } from "../../use-cases/notification/markAsRead";
 import { MarkAllAsRead } from "../../use-cases/notification/markAllAsRead";
 import { DeleteOlderThan } from "../../use-cases/notification/deleteOlderThan";
-import { Router, Request, Response, NextFunction } from "express";
+import { Router } from "express";
 import { NotificationController } from "../controllers/NotificationController";
 import { NotificationRepository } from "../../infrastructure/repositories/MongoNotificationRepository";
 
@@ -22,10 +22,10 @@ const deleteOlderThan = new DeleteOlderThan(notificationRepo);
 const notificationController = new NotificationController(
   createOrAggregate,
   getUnreadCount,
-    getUserNotification,
-    markAsRead,
-    markAllAsRead,
-    deleteOlderThan
+  getUserNotification,
+  markAsRead,
+  markAllAsRead,
+  deleteOlderThan
 );
 
 /**
@@ -34,7 +34,6 @@ const notificationController = new NotificationController(
  *   name: Notifications
  *   description: API for managing user notifications
  */
-
 
 /**
  * @swagger
@@ -66,14 +65,34 @@ const notificationController = new NotificationController(
  *           type: string
  *           example: "liked your post"
  */
-router.post("/", (req, res, next) => notificationController.createOrAggregate(req, res, next));
+
+/**
+ * @swagger
+ * /api/v1/notifications:
+ *   post:
+ *     tags: [Notifications]
+ *     summary: Create or aggregate a notification
+ *     description: Create a new notification or aggregate it with an existing one
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Notification'
+ *     responses:
+ *       201:
+ *         description: Notification created or aggregated successfully
+ *       400:
+ *         description: Bad request
+ */
+router.post("/", notificationController.createOrAggregate);
 
 /**
  * @swagger
  * /api/v1/notifications/unread-count/{userId}:
  *   get:
- *     summary: Get unread notification count for a user
- *     description: Retrieve the count of unread notifications for a specific user
+ *     tags: [Notifications]
+ *     summary: Get unread notification count
  *     parameters:
  *       - in: path
  *         name: userId
@@ -83,15 +102,14 @@ router.post("/", (req, res, next) => notificationController.createOrAggregate(re
  *     responses:
  *       200:
  *         description: Unread notification count retrieved successfully
- *       404:
- *         description: User not found
  */
-router.get("/unread-count/:userId", (req, res, next) => notificationController.getUnreadCount(req, res, next));
+router.get("/unread-count/:userId", notificationController.getUnreadCount);
 
 /**
  * @swagger
  * /api/v1/notifications/user/{userId}:
  *   get:
+ *     tags: [Notifications]
  *     summary: Get user notifications
  *     description: Retrieve notifications for a specific user
  *     parameters:
@@ -105,27 +123,27 @@ router.get("/unread-count/:userId", (req, res, next) => notificationController.g
  *         required: false
  *         schema:
  *           type: integer
- *           example: 1
+ *           default: 1
  *       - in: query
  *         name: limit
  *         required: false
  *         schema:
  *           type: integer
- *           example: 20
+ *           default: 20
  *     responses:
  *       200:
  *         description: User notifications retrieved successfully
  *       404:
  *         description: User not found
  */
-router.get("/user/:userId", (req, res, next) => notificationController.getUserNotifications(req, res, next));
+router.get("/user/:userId", notificationController.getUserNotifications);
 
 /**
  * @swagger
  * /api/v1/notifications/mark-as-read/{notificationId}:
  *   put:
+ *     tags: [Notifications]
  *     summary: Mark a notification as read
- *     description: Update the read status of a specific notification
  *     parameters:
  *       - in: path
  *         name: notificationId
@@ -135,18 +153,15 @@ router.get("/user/:userId", (req, res, next) => notificationController.getUserNo
  *     responses:
  *       200:
  *         description: Notification marked as read successfully
- *       404:
- *         description: Notification not found
  */
-
-router.put("/mark-as-read/:notificationId", (req, res, next) => notificationController.markAsRead(req, res, next));
+router.put("/mark-as-read/:notificationId", notificationController.markAsRead);
 
 /**
  * @swagger
  * /api/v1/notifications/mark-all-as-read/{userId}:
  *   put:
- *     summary: Mark all notifications as read for a user
- *     description: Update the read status of all notifications for a specific user
+ *     tags: [Notifications]
+ *     summary: Mark all notifications as read
  *     parameters:
  *       - in: path
  *         name: userId
@@ -156,17 +171,15 @@ router.put("/mark-as-read/:notificationId", (req, res, next) => notificationCont
  *     responses:
  *       200:
  *         description: All notifications marked as read successfully
- *       404:
- *         description: User not found
  */
-router.put("/mark-all-as-read/:userId", (req, res, next) => notificationController.markAllAsRead(req, res, next));
+router.put("/mark-all-as-read/:userId", notificationController.markAllAsRead);
 
 /**
  * @swagger
  * /api/v1/notifications/delete-older-than/{date}:
  *   delete:
- *     summary: Delete notifications older than a specific date
- *     description: Remove notifications that were created before a specified date
+ *     tags: [Notifications]
+ *     summary: Delete notifications older than a date
  *     parameters:
  *       - in: path
  *         name: date
@@ -177,9 +190,7 @@ router.put("/mark-all-as-read/:userId", (req, res, next) => notificationControll
  *     responses:
  *       200:
  *         description: Notifications deleted successfully
- *       400:
- *         description: Bad request
  */
-router.delete("/delete-older-than/:date", (req, res, next) => notificationController.deleteOlderThan(req, res, next));
+router.delete("/delete-older-than/:date", notificationController.deleteOlderThan);
 
-export { router as notificationRoutes }
+export { router as notificationRoutes };
