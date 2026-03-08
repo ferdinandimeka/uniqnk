@@ -8,7 +8,7 @@ import { Router, Request, Response, NextFunction } from "express";
 import { NotificationController } from "../controllers/NotificationController";
 import { NotificationRepository } from "../../infrastructure/repositories/MongoNotificationRepository";
 
-const useRouter = Router();
+const router = Router();
 
 const notificationRepo = new NotificationRepository();
 
@@ -53,7 +53,7 @@ const notificationController = new NotificationController(
  *       400:
  *         description: Bad request
  */
-useRouter.post("/", (req, res, next) => notificationController.createOrAggregate(req, res, next));
+router.post("/", (req, res, next) => notificationController.createOrAggregate(req, res, next));
 
 /**
  * @swagger
@@ -73,7 +73,7 @@ useRouter.post("/", (req, res, next) => notificationController.createOrAggregate
  *       404:
  *         description: User not found
  */
-useRouter.get("/unread-count/:userId", (req, res, next) => notificationController.getUnreadCount(req, res, next));
+router.get("/unread-count/:userId", (req, res, next) => notificationController.getUnreadCount(req, res, next));
 
 /**
  * @swagger
@@ -93,7 +93,7 @@ useRouter.get("/unread-count/:userId", (req, res, next) => notificationControlle
  *       404:
  *         description: User not found
  */
-useRouter.get("/user/:userId", (req, res, next) => notificationController.getUserNotifications(req, res, next));
+router.get("/user/:userId", (req, res, next) => notificationController.getUserNotifications(req, res, next));
 
 /**
  * @swagger
@@ -114,7 +114,7 @@ useRouter.get("/user/:userId", (req, res, next) => notificationController.getUse
  *         description: Notification not found
  */
 
-useRouter.put("/mark-as-read/:notificationId", (req, res, next) => notificationController.markAsRead(req, res, next));
+router.put("/mark-as-read/:notificationId", (req, res, next) => notificationController.markAsRead(req, res, next));
 
 /**
  * @swagger
@@ -134,7 +134,7 @@ useRouter.put("/mark-as-read/:notificationId", (req, res, next) => notificationC
  *       404:
  *         description: User not found
  */
-useRouter.put("/mark-all-as-read/:userId", (req, res, next) => notificationController.markAllAsRead(req, res, next));
+router.put("/mark-all-as-read/:userId", (req, res, next) => notificationController.markAllAsRead(req, res, next));
 
 /**
  * @swagger
@@ -155,6 +155,6 @@ useRouter.put("/mark-all-as-read/:userId", (req, res, next) => notificationContr
  *       400:
  *         description: Bad request
  */
-useRouter.delete("/delete-older-than/:date", (req, res, next) => notificationController.deleteOlderThan(req, res, next));
+router.delete("/delete-older-than/:date", (req, res, next) => notificationController.deleteOlderThan(req, res, next));
 
 export { useRouter as notificationRoutes }
