@@ -17,7 +17,7 @@ export class NotificationController {
     private deleteOlderThanUseCase: DeleteOlderThan
   ) {}
 
-  async createOrAggregate(req: Request, res: Response, next: NextFunction): Promise<Response> {
+  createOrAggregate = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
     try {
       const { userId, type, actorId, postId, commentId, content } = req.body;
       await this.createOrAggregateUseCase.execute(userId, type, actorId, postId, commentId, content);
@@ -28,7 +28,7 @@ export class NotificationController {
     }
   }
 
-  async getUnreadCount(req: Request, res: Response, next: NextFunction): Promise<Response> {
+  getUnreadCount = async (req: Request, res: Response, next: NextFunction): Promise<Response> => {
     try {
       const userId = getParam(req.params.userId);
       const count = await this.getUnreadCountUseCase.execute(userId);
@@ -39,20 +39,20 @@ export class NotificationController {
     }
   }
 
-  async getUserNotifications(req: Request, res: Response, next: NextFunction): Promise<Response> {
+  getUserNotifications = async (req: Request, res: Response, next: NextFunction): Promise<Response | void> => {
     try {
       const userId = getParam(req.params.userId);
-      const page = parseInt(getParam(String(req.query.page)), 10);
-      const limit = parseInt(getParam(String(req.query.limit)), 10);
+      const page = parseInt(String(req.query.page ?? "1"), 10);
+      const limit = parseInt(String(req.query.limit ?? "20"), 10);
       const notifications = await this.getUserNotificationUseCase.execute(userId, page, limit);
       return res.status(200).json(notifications);
     } catch (error) {
-      next(error);
-      return res.status(500).json({ success: false, message: "Failed to get user notifications" });
+      return next(error);
+      // return res.status(500).json({ success: false, message: "Failed to get user notifications" });
     }
   }
 
-  async markAsRead(req: Request, res: Response, next: NextFunction): Promise<Response> {
+  markAsRead = async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
     try {
       const notificationId = getParam(req.params.notificationId);
       const userId = getParam(req.params.userId);
@@ -64,7 +64,7 @@ export class NotificationController {
     }
   }
 
-  async markAllAsRead(req: Request, res: Response, next: NextFunction): Promise<Response> {
+  markAllAsRead = async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
     try {
       const userId = getParam(req.params.userId);
       await this.markAllAsReadUseCase.execute(userId);
@@ -75,7 +75,7 @@ export class NotificationController {
     }
   }
 
-  async deleteOlderThan(req: Request, res: Response, next: NextFunction): Promise<Response> {
+  deleteOlderThan = async(req: Request, res: Response, next: NextFunction): Promise<Response> => {
     try {
       const daysOld = parseInt(getParam(req.params.daysOld), 10);
       await this.deleteOlderThanUseCase.execute(daysOld);
