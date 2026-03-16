@@ -27,6 +27,7 @@ export type NotificationType =
   | "comment"
   | "reply"
   | "follow"
+  | "unfollow"
   | "mention"
   | "repost"
   | "system";
@@ -73,6 +74,7 @@ const NotificationSchema = new Schema<INotification>(
         "comment",
         "reply",
         "follow",
+        "unfollow",
         "mention",
         "repost",
         "system",

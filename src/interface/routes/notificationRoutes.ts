@@ -140,7 +140,7 @@ router.get("/user/:userId", notificationController.getUserNotifications);
 
 /**
  * @swagger
- * /api/v1/notifications/mark-as-read/{notificationId}:
+ * /api/v1/notifications/mark-as-read/{notificationId}/{userId}:
  *   put:
  *     tags: [Notifications]
  *     summary: Mark a notification as read
@@ -150,11 +150,16 @@ router.get("/user/:userId", notificationController.getUserNotifications);
  *         required: true
  *         schema:
  *           type: string
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Notification marked as read successfully
  */
-router.put("/mark-as-read/:notificationId", notificationController.markAsRead);
+router.put("/mark-as-read/:notificationId/:userId", notificationController.markAsRead);
 
 /**
  * @swagger

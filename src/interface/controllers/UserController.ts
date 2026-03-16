@@ -137,9 +137,9 @@ export class UserController {
                 targetUserId,
                 "follow",
                 userId,
-                "",
-                "",
-                `followed you`
+                undefined,
+                undefined,
+                "followed you"
             );
             res.status(200).json({ message: 'Successfully followed the user.' });
         } catch (error) {
@@ -158,9 +158,9 @@ export class UserController {
                 targetUserId,
                 "unfollow",
                 userId,
-                "",
-                "",
-                `unfollowed you`
+                undefined,
+                undefined,
+                "unfollowed you",
             );
             res.status(200).json({ message: 'Successfully unfollowed the user.' });
         } catch (error) {
