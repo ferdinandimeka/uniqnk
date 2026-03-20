@@ -106,7 +106,7 @@ export class ChatController {
    /** ✅ Get all messages in a chat */
   async getAllMessages(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const chatId = getParam(req.params.id);
+      const chatId = getParam(req.params.chatId);
 
       if (!chatId) {
         return res.status(400).json({ message: "Chat ID is required" });
