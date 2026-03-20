@@ -124,7 +124,7 @@ export class ChatController {
   /** ✅ Get all chats for a user (with last message preview) */
   async getUserChats(req: Request, res: Response, next: NextFunction): Promise<Response> {
     try {
-      const userId = getParam(req.params.id);
+      const userId = getParam(req.params.userId);
 
       if (!userId) {
         return res.status(400).json({ message: "User ID is required" });
